@@ -17,7 +17,7 @@ Stretch goals Stretch goals for additional / advanced features for when you comp
 ![how-to drop down](wireframes/howto.png)
 ![game over](wireframes/gameover.png)
 ![betting](wireframes/wager.png)
-#
+![wf](wireframes/mainwire.png)
 
 
 <strong>API:</strong>
