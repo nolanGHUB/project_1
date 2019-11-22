@@ -68,9 +68,10 @@ image: "https://deckofcardsapi.com/static/img/QC.png"
 success: true
 }
 ```
-<strong>Example of card image:</strong>
-![card](https://deckofcardsapi.com/static/img/QC.png)
 #
+<strong>Example of card image:</strong>
+
+![card](https://deckofcardsapi.com/static/img/QC.png)
 #
 <strong>MVP Features:</strong>
 - CSS animated logo / Or graphic logo in the header
