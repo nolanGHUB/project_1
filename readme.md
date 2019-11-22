@@ -18,7 +18,7 @@ Stretch goals Stretch goals for additional / advanced features for when you comp
 ![game over](wireframes/gameover.png)
 ![betting](wireframes/wager.png)
 #
-#
+
 
 <strong>API:</strong>
 - This will be using the Deck of cards API located at: [Deck of cards](https://deckofcardsapi.com/)
