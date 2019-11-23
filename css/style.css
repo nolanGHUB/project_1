@@ -3,3 +3,12 @@ body {
   background-image: url('../images/greenfelt.jpg');
   background-size: 55%;
 }
+
+#gameStart {
+  width: 100px;
+  background-color: cornsilk;
+  border-radius: 10px;
+  text-align: center;
+  padding: 30px;
+}
+
