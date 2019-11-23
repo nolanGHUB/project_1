@@ -1,9 +1,13 @@
-const getIdButton = document.querySelector('#gameStart');
+const gameStartButton = document.querySelector('#gameStartButton');
+const newHandButton = document.querySelector('#newHandButton');
+const hitButton = document.querySelector('#hitButton');
+const standButton = document.querySelector('#standButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
 let deckId;
 // let getCardsURL = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=` //add the # of cards you want from the deck (52 = 1 deck, 312 = 6 decks)
 let deck; // store the full 52 card deck here. (array of card objects)
-let gameState = "start"; //Should be a string equating to the current gameState such as "over", "bet", "inHand", "outHand" & "start"
+let gameState = "start"; //Should be a string equating to the current gameState such as "over", "bet", "inHand", "outHand", & "start"
+let gamesPlayedCounter = 0;
 let dealerHand = [];
 let playerHand = [];
 //BACK OF CARD IMAGE = 226px x 314px
@@ -14,12 +18,24 @@ let playerHand = [];
 //inHand is current gameplay, should show game actions hit and stand.
 //outHand is hand is over, player won or lost and this is where you check to see if they are out of money for further bets before going to bet state again, if so go to over state.
 
-  //gameInit function
-  //invokes all functions required to begin the game.
-  //calls createBoard()
-  //calls playGame()
 
+async function gameInit() {
+  await newDeck();
+}
   
+function resetBoard() {
+  //reset boardVisuals
+}
+
+function newHand() {
+  console.log('-------------------------');
+  gamesPlayedCounter++;
+  playerHand = deal(2);
+  dealerHand = deal(2);
+  gameState = "player";
+  playerTurn();
+}
+
   //createBoard()
   //this should call the newDeck to set the deck array and deckId
   //this is where you create and populate divs to a gameBoard this includes:
@@ -31,12 +47,6 @@ let playerHand = [];
   //calls gameReset()
 
 
-  //newDeck
-  //using the API, creates 6 new shuffled decks and sets them all into one main deck array
-  //also sets the deck_id to deckId incase it needs to be referenced to later.
-  //const deck = await axios.get(getNewDecksURL);
-  //deckId = deck.data.deck_id;
-  //console.log(deckId);
 async function newDeck() { //WHEN CALLED: needs to be run inside of another async/await setup otherwise other functions that depend on this data won't have access.
   let decksIdObj = await axios.get(`${getNewDecksURL}6`);
   deckId = decksIdObj.data.deck_id;
@@ -60,69 +70,153 @@ async function shuffleDeck() {
 }
 
 
-//dealCards(number of cards)
+//takeFromDeck(number of cards)
 //returns an array filled with the number of cards given in the parameter
-function dealCards(numOfCards) {
+function takeFromDeck(numOfCards) {
   let cards = [];
-  cards = deck.splice(0, numOfCards);// splice returns cards starting at the first variable, number of cards to return. So if first arg is 0, returning starting at the start of the array.  If I wanted to return the final 2 cards I would use splice(-numofcards, numofcards) (negative2, 2)
-  return cards;
+  if (numOfCards === 1) {
+    cards.push(deck.shift());
+    return cards;
+  } else {
+    cards = deck.splice(0, numOfCards);// splice returns cards starting at the first variable, number of cards to return. So if first arg is 0, returning starting at the start of the array.  If I wanted to return the final 2 cards I would use splice(-numofcards, numofcards) (negative2, 2)
+    return cards;
+  }
+}
+//COMBINE TAKE FROM DECK AND DEAL AT SOME POINT *******************
+//deal
+//ORIGINAL VERSION DOES NOT WORK BUT DONT UNDERSTAND WHY: WHY CAN'T I PASS 2 ARGUMENTS, THE GLOBAL DECK THAT I WISH TO APPEND TO AND THE NUMBER OF CARDS TO APPEND, ITS A REFERENCE ISSUE BUT I JUST DONT UNDERSTAND IT. NEVERTHE LESS CHANGED TO ONLY HAVE ONE PARAMETER AND DO THE BINDING IN THE FUNCTION THAT IS CALLING THIS INSTEAD OF INSIDE THIS FUNCTION
+//This function returns the number of cards you need. I feel like I could combine takeFromDeck and this but this works for now.
+function deal(numOfCards) {
+  if (numOfCards === 1) { //check if you are only requesting one card so that you return the object and not another array.
+    return takeFromDeck(numOfCards).pop();
+  } else {
+    return takeFromDeck(numOfCards).slice();// because just saying array1 = array2 just creates a reference and doesnt copy it over, we need to use slice() with an empty argument instead to slice the entire array and return those values.
+  }
 }
 
-//dealHand
-//using dealCards() applies the appropriate amount of cards to each hand, 2 each.
+function calculateValue(isEleven, value) { // grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a number value.
+  switch (value) {
+    case 'KING':
+    case 'QUEEN':
+    case 'JACK':
+      value = 10;
+      break;
+    case 'ACE':
+      isEleven ? value = 11 : value = 1;
+      break;
+    default:
+      value = parseInt(value);
+  }
+  return value;
+}
 
+//returns the total value of the cards in the player's hand
+function getPlayerTotal() { // get highest total without busting
+  let total = 0;
+  for (let i = 0; i < playerHand.length; i++) {
+    let value = calculateValue(true, playerHand[i].value);
+    if (total + value > 21) {
+      value = calculateValue(false, playerHand[i].value);
+    }
+    total += value;
+  }
+  return total;
+}
+
+//returns the total value of the cards in the dealer's hand
+function getDealerTotal() {
+  let total = 0;
+  for (let i = 0; i < dealerHand.length; i++) {
+    let value = calculateValue(true, dealerHand[i].value);
+    if (total + value > 21) {
+      value = calculateValue(false, dealerHand[i].value);
+    }
+    total += value;
+  }
+  return total;
+}
+
+
+function hit() {
+  playerHand.push(deal(1));
+  console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
+  console.log(`Your new total is ${getPlayerTotal()}`);
+  if (getPlayerTotal() > 21) {
+    gameState = "bust";
+    playGame();
+  }
+}
+
+function stand() {
+  console.log(`Alright your final total is: ${getPlayerTotal()}`);
+  gameState = "dealer";
+  playGame();
+}
+
+//have the dealer perform his turn after the player has stood.
+function dealerTurn() {
+
+}
+
+function playerTurn() {
+  console.log('Player, your hand is:');
+  console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
+  console.log(`Your total is: ${getPlayerTotal()}`);
+  console.log(' ');
+  console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+  console.log(' ');
+}
 
 //clearHand()
 //take both hand arrays that have been played in and reset them
 
  
 async function testRun() { //temporary fn to call subsets of the game for testing 
-  await newDeck();
+  // await newDeck();
+  await gameInit();
   // await shuffleDeck();
-  console.log(dealCards(2));
+  // console.log(takeFromDeck(2));
+  playerHand = deal(2);
+  dealerHand = deal(2);
+  // console.log(playerHand);
+  // console.log(dealerHand);
+  playerTurn();
 }
-testRun();
-  
+
 
 //playGame()
 //where most game logic will take place
 //just a series of if elses given the current gameState string, run that code.
 //all gameState variable changes will occur in other functions, then recall playGame() and playGame will jump to the appropriate
 //part due to it checking the gameState
-//call dealHand
-//once the player can see their cards,  change gameState to "bet"
-//make betOptions appear, this should be a div containing the buttons that take from totalMoney and sets currentBet
-//
-//make gameOptions appear, this should be a div containing the buttons for hit and stand (keep it simple at the start)
-//
-function playGame() {
+async function playGame() {
     
   if (gameState === "bet") {
     //call function to create betting options appear, create functions to respond to those button clicks & change the gameState if finish betting 
     //is set and then recall playGame()
-  } else if (gameState === "inHand") {
+  } else if (gameState === "player") {
     //call dealHand()
-  } else if (gameState === "outHand"){
+    playerTurn();
+  } else if (gameState === "dealer"){
     //call 
+    dealerTurn();
+  } else if (gameState === "bust") {
+    console.log("***************YOU BUST!***************");
+    // resetBoard();
   } else if (gameState === "over") {
     //call
   } else if (gameState === "start") {
     //call gameInit()
+    await gameInit();
   }  
 }
 
 
-window.onload = function() {
+window.onload = function () {
   
-
-  // getIdButton.addEventListener('click',async function () {
-  //   //call newDeck fn
-  //   //newDecks()
-
-  //   // const deck = await axios.get(newDeck);
-  //   // deckId = deck.data.deck_id;
-  //   // console.log(deckId);
-  // })
-
+  gameStartButton.addEventListener('click', playGame);
+  newHandButton.addEventListener('click', newHand);
+  hitButton.addEventListener('click', hit);
+  standButton.addEventListener('click', stand);
 
 }

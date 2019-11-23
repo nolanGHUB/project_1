@@ -4,11 +4,17 @@ body {
   background-size: 55%;
 }
 
-#gameStart {
+#gameBoard {
+  display: flex;
+  justify-content: space-around;
+}
+
+.gameButton {
   width: 100px;
   background-color: cornsilk;
   border-radius: 10px;
   text-align: center;
   padding: 30px;
+  margin-top: 10px;
 }
 
