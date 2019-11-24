@@ -20,12 +20,14 @@ let playerHand = [];
 
 
 async function gameInit() {
-  await newDeck();
+  // await newDeck();
+  let decksIdObj = await axios.get(`${getNewDecksURL}6`);
+  deckId = decksIdObj.data.deck_id;
+  console.log(`Six new decks created! The deckId = ${deckId}`);
+  deck = await drawCards(312);//Fills the global deck array up with the full 6 decks, and they are ALREADY SHUFFLED, not necessary to follow up with shuffleDeck.
 }
   
-function resetBoard() {
-  //reset boardVisuals
-}
+
 
 async function newHand() {
   console.log('-------------------------');
@@ -39,6 +41,12 @@ async function newHand() {
   gamesPlayedCounter++;
   playerHand = deal(2);
   dealerHand = deal(2);
+  console.log('Player, your hand is:');
+  console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
+  console.log(`Your total is: ${getPlayerTotal()}`);
+  console.log(' ');
+  console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+  console.log(' ');
   gameState = "player";
   playerTurn();
 }
@@ -49,18 +57,14 @@ async function newHand() {
   //this is where you create and populate divs to a gameBoard this includes:
   //the "stack of cards" full deck from which cards are drawn from - this should just be (hopefully a css animation) a static image for now.
 
+  //reset visuals after a hand ends.
+  function resetBoard() {
+    //reset board Visuals
+  }
 
   //gameOver function
   //call when money is zero, this should present a game over state on the board.
   //calls gameReset()
-
-
-async function newDeck() { //WHEN CALLED: needs to be run inside of another async/await setup otherwise other functions that depend on this data won't have access.
-  let decksIdObj = await axios.get(`${getNewDecksURL}6`);
-  deckId = decksIdObj.data.deck_id;
-  console.log(`Six new decks created! The deckId = ${deckId}`);
-  deck = await drawCards(312); //Fills the global deck array up with the full 6 decks, and they are ALREADY SHUFFLED, not necessary to follow up with shuffleDeck.
-}
 
 
 //This is the function that actually fills the global deck variable with the cards. Not to be confused with dealCards()
@@ -72,16 +76,13 @@ async function drawCards(numOfCards) {
 
 
 //Shuffles the deck without having to create a new one, and then refills the deck array with newly shuffled cards.
-async function shuffleDeck() {
-  console.log(deck);
+async function shuffleDeck() { //try to switch this to a local function instead.
   let shuffleObj = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/shuffle/`); //Shuffles the deck on the API side.
   deck = await drawCards(312); //re-draws all the cards and refills the deck array with the now shuffled 312 cards.
-  console.log(deck);
 }
 
 
-//deal
-//ORIGINAL VERSION DOES NOT WORK BUT DONT UNDERSTAND WHY: WHY CAN'T I PASS 2 ARGUMENTS, THE GLOBAL DECK THAT I WISH TO APPEND TO AND THE NUMBER OF CARDS TO APPEND, ITS A REFERENCE ISSUE BUT I JUST DONT UNDERSTAND IT. NEVERTHE LESS CHANGED TO ONLY HAVE ONE PARAMETER AND DO THE BINDING IN THE FUNCTION THAT IS CALLING THIS INSTEAD OF INSIDE THIS FUNCTION
+//deal - all local not using API
 //This function returns the number of cards you need. I feel like I could combine takeFromDeck and this but this works for now.
 function deal(numOfCards) {
   let cards = [];
@@ -131,26 +132,60 @@ function getPlayerTotal() { // get highest total without busting
 
 //returns the total value of the cards in the dealer's hand
 function getDealerTotal() {
-  let total = 0;
-  for (let i = 0; i < dealerHand.length; i++) {
-    let value = calculateValue(true, dealerHand[i].value);
-    if (total + value > 21) {
-      value = calculateValue(false, dealerHand[i].value);
+  let total = 0; //sum
+  let aceCounter = 0; //To see if we need to lower an ace's value from 11 to 1 if total is over 21
+  for (let i = 0; i < dealerHand.length; i++) { //iterate through the hand
+    let value = calculateValue(dealerHand[i].value); //grab and bind each cards value, pass it through the calculateValue because some of the innate values are KING/JACK/ACE/QUEEN and we want straight # values 
+    if (value === 11) { //if we have an ace, up the counter incase we need to lower the value of one of them to 1
+      aceCounter++;
     }
-    total += value;
+    if ((value + total > 21) && (aceCounter > 0)) {//If we're busting and happen to have an ace that hasnt had its value lowered yet, set that 11 to a 1!
+      total -= 10; //subtract the difference
+      aceCounter--; //ace is counted, no more 11-value-aces
+    }
+    total += value; //add up the total
   }
   return total;
 }
 
 
+
+//have the dealer perform his turn after the player has stood.
+function dealerTurn() { // returns the result of the dealers moves: blackjack, bust, stand, push.
+  let dealerTotal = getDealerTotal();
+  let dealerTurnOver = false;
+  //flip dealers unflipped card
+  console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+  if (dealerTotal === 21) { // if Dealer has a blackjack
+    "Dealer has Blackjack!";
+    return "blackjack";
+  }
+  console.log(`Dealer's total is: ${dealerTotal}`);
+
+  while (dealerTurnOver === false) { //dealer `ai` 
+    if (dealerTotal > 21) {//if dealer bust
+      dealerTurnOver = true;
+      return "bust"
+    } else if (dealerTotal >= 17) {
+      console.log('Dealer Stands');
+      dealerTurnOver = true;
+      return 'stand';
+    } else {
+      dealerHand.push(deal(1));
+      console.log('Dealer chooses to hit.');
+      console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
+      dealerTotal = getDealerTotal();
+      console.log(`Dealer's new total is ${dealerTotal}`);
+    }
+  }
+}
+
 function hit() {
+  gameState = 'player';
   playerHand.push(deal(1));
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
-  if (getPlayerTotal() > 21) {
-    gameState = "bust";
-    playGame();
-  }
+  playerTurn();
 }
 
 function stand() {
@@ -159,35 +194,23 @@ function stand() {
   playGame();
 }
 
-//have the dealer perform his turn after the player has stood.
-function dealerTurn() {
-
-}
-
 function playerTurn() {
-  console.log('Player, your hand is:');
-  console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
-  console.log(`Your total is: ${getPlayerTotal()}`);
-  console.log(' ');
-  console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-  console.log(' ');
+  let playerTotal = getPlayerTotal();
+  if (playerTotal === 21 && playerHand.length === 2) {
+    return "natural";
+  }
+  if (playerTotal > 21) { 
+    gameState = "bust";
+    return "bust";
+  } else if (playerTotal === 21) {
+    return "21";
+  } else {
+    console.log(`Do you choose to Hit or Stand?`);
+  }
 }
 
 //clearHand()
 //take both hand arrays that have been played in and reset them
-
- 
-async function testRun() { //temporary fn to call subsets of the game for testing 
-  // await newDeck();
-  await gameInit();
-  // await shuffleDeck();
-  // console.log(takeFromDeck(2));
-  playerHand = deal(2);
-  dealerHand = deal(2);
-  // console.log(playerHand);
-  // console.log(dealerHand);
-  playerTurn();
-}
 
 
 //playGame()
@@ -196,21 +219,54 @@ async function testRun() { //temporary fn to call subsets of the game for testin
 //all gameState variable changes will occur in other functions, then recall playGame() and playGame will jump to the appropriate
 //part due to it checking the gameState
 async function playGame() {
-    
-  if (gameState === "bet") {
+    if (gameState === "bet") {
     //call function to create betting options appear, create functions to respond to those button clicks & change the gameState if finish betting 
     //is set and then recall playGame()
   } else if (gameState === "player") {
-    //call dealHand()
-    playerTurn();
+      let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+      switch (playerOutcome) {
+        case 'natural':
+          "You have Blackjack! You win!";
+          break;
+        case '21':
+          "You have a 21, dealer's turn.";
+          gameState === 'dealer';
+          dealerTurn();
+          break;
+        case 'bust':
+          console.log(`Your total is: ${getPlayerTotal()}. You've busted. Better luck next game!`);
+          gameState === "bust";
+          break;
+        default:
+          console.log("You should never see this message - From playGame() player section.");
+      }
   } else if (gameState === "dealer"){
-    //call 
-    dealerTurn();
+      let dealerOutcome = dealerTurn(); // blackjack, stand, bust
+      switch (dealerOutcome) {
+        case "bust":
+          console.log('Dealer has busted! You win!');
+          break;
+        case "blackjack":
+          console.log('Dealer has blackjack!');
+          break;
+        case "stand":
+          if (getPlayerTotal() > getDealerTotal()) {
+            console.log('You win!');
+          } else if (getPlayerTotal() < getDealerTotal()) {
+            console.log('Sorry, you lose this round. Better luck next game!');
+          } else {
+            console.log('Push! No money won or lost.');
+          }
+          break;
+        default:
+          console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
+      }  
   } else if (gameState === "bust") {
-    console.log("***************YOU BUST!***************");
+    console.log("***YOU BUST!***");
     // resetBoard();
   } else if (gameState === "over") {
-    //call
+    //only show the deal new game button.
+    // hide hit and stand
   } else if (gameState === "start") {
     //call gameInit()
     await gameInit();
