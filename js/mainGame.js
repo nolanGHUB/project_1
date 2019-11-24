@@ -34,10 +34,7 @@ async function newHand() {
   let flushHand = [];
   flushHand = playerHand.concat(dealerHand);
   deck = deck.concat(flushHand);
-  if (gamesPlayedCounter % 3 === 0 && gamesPlayedCounter !==0 ) { //every 3 games, reshuffle and redraw deck variable, this calls the api so limited it from every game
-    await shuffleDeck();
-    console.log("RESUFFLING DECK");
-  }
+  deck = await localShuffleDeck(); // shuffle after every hand.
   gamesPlayedCounter++;
   playerHand = deal(2);
   dealerHand = deal(2);
@@ -75,10 +72,28 @@ async function drawCards(numOfCards) {
 }
 
 
+//USES THE API
 //Shuffles the deck without having to create a new one, and then refills the deck array with newly shuffled cards.
 async function shuffleDeck() { //try to switch this to a local function instead.
   let shuffleObj = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/shuffle/`); //Shuffles the deck on the API side.
   deck = await drawCards(312); //re-draws all the cards and refills the deck array with the now shuffled 312 cards.
+}
+
+//Does shuffling locally to minimize api calls to once per browser refresh.
+function localShuffleDeck() { // Same shuffle from hi-lo week1
+  let currentIndex = deck.length;
+  let shuffledDeck = deck.slice();
+  let temporaryValue;
+  let randomIndex;
+
+  while (currentIndex !== 0) { //while there are cards left in the array to shuffle
+    randomIndex = Math.floor(Math.random() * (currentIndex - 1)); //using rng to pick a number between 0 and the remaining un-shuffled cards, and then storing the value.  Subtracting one from currentIndex, because that is the total amount and that count starts at 1 aka the length. However when we're applying the randomIndex, we want an index value for the array which starts at 0 so we shift it down one otherwise we end up with 53 elements instead of 52, with one being undefined.
+    currentIndex--; //lower the number of cards left to be shuffled
+    temporaryValue = shuffledDeck[currentIndex]; //grab the last card that has yet to be randomly placed in the deck
+    shuffledDeck[currentIndex] = shuffledDeck[randomIndex];  //take the bottom unshuffled card, and set it equal to a random un-shuffled card. so now we have two elements in the array that are set to the same randomly chosen value
+    shuffledDeck[randomIndex] = temporaryValue; // We need to complete the 'swap', so set where the randomly chosen card came from to the bottom of the pile card
+  }
+  return shuffledDeck;
 }
 
 
