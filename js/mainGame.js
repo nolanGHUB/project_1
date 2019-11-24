@@ -30,7 +30,8 @@ async function gameInit() {
 
 
 async function newHand() {
-  console.log('-------------------------');
+  console.log('-----------------------NEW HAND---------------------------');
+  console.log('----------------------------------------------------------');
   let flushHand = [];
   flushHand = playerHand.concat(dealerHand);
   deck = deck.concat(flushHand);
@@ -44,8 +45,24 @@ async function newHand() {
   console.log(' ');
   console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   console.log(' ');
-  gameState = "player";
-  playerTurn();
+  //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
+  if (checkDealerNatural() === true && checkPlayerNatural() === false) {
+    gameState = "over";
+    console.log(`Dealer has Blackjack! Better luck next game.`);
+    playGame();
+  } else if (checkDealerNatural() === true && checkPlayerNatural() === true) {
+    gameState = "over";
+    console.log('You AND the dealer both have Blackjack! No payouts.');
+    playGame();
+  } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
+    gameState = "over";
+    console.log('You have Blackjack!, You win!'); 
+  } else {
+    gameState = "player";
+    // playerTurn();
+    playGame();
+  }
+  
 }
   
 
@@ -163,18 +180,29 @@ function getDealerTotal() {
   return total;
 }
 
-
+//checks if dealer has a nautral 21 indicating auto-win blackjack state, this is ace + any 10 value.
+function checkDealerNatural() { //gets called from newHand()
+  if (dealerHand.length === 2 && getDealerTotal() === 21) {
+    return true;
+  } else {
+    return false;
+  }
+}
+function checkPlayerNatural() { // does the same but for the player, called from newHand only if dealer has natural
+  if (playerHand.length === 2 && getPlayerTotal() === 21) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
 //have the dealer perform his turn after the player has stood.
-function dealerTurn() { // returns the result of the dealers moves: blackjack, bust, stand, push.
+function dealerTurn() { // returns the result of the dealers moves: blackjack, bust, stand, push.  blackjack result depreciated.
+  gameState = "dealer";
   let dealerTotal = getDealerTotal();
   let dealerTurnOver = false;
   //flip dealers unflipped card
   console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-  if (dealerTotal === 21) { // if Dealer has a blackjack
-    "Dealer has Blackjack!";
-    return "blackjack";
-  }
   console.log(`Dealer's total is: ${dealerTotal}`);
 
   while (dealerTurnOver === false) { //dealer `ai` 
@@ -184,43 +212,44 @@ function dealerTurn() { // returns the result of the dealers moves: blackjack, b
     } else if (dealerTotal >= 17) {
       console.log('Dealer Stands');
       dealerTurnOver = true;
-      return 'stand';
+      return "stand";
     } else {
       dealerHand.push(deal(1));
       console.log('Dealer chooses to hit.');
       console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
       dealerTotal = getDealerTotal();
       console.log(`Dealer's new total is ${dealerTotal}`);
+      dealerTurnOver === false;
     }
   }
 }
 
+//if hit button is pressed
 function hit() {
   gameState = 'player';
   playerHand.push(deal(1));
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
-  playerTurn();
+  playGame();
 }
 
+//if stand button is pressed
 function stand() {
-  console.log(`Alright your final total is: ${getPlayerTotal()}`);
+  
   gameState = "dealer";
   playGame();
 }
 
+//returns natural for 2-card blackjack, 21 or bust.  hit() and stand() do the rest of the player logic.
 function playerTurn() {
   let playerTotal = getPlayerTotal();
-  if (playerTotal === 21 && playerHand.length === 2) {
-    return "natural";
-  }
   if (playerTotal > 21) { 
     gameState = "bust";
     return "bust";
   } else if (playerTotal === 21) {
     return "21";
   } else {
-    console.log(`Do you choose to Hit or Stand?`);
+    return "choice";
   }
 }
 
@@ -240,22 +269,25 @@ async function playGame() {
   } else if (gameState === "player") {
       let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
       switch (playerOutcome) {
-        case 'natural':
-          "You have Blackjack! You win!";
-          break;
         case '21':
-          "You have a 21, dealer's turn.";
-          gameState === 'dealer';
-          dealerTurn();
+          console.log("You have a 21, dealer's turn.");
+          setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
+            stand();
+          }, 1750);
           break;
         case 'bust':
-          console.log(`Your total is: ${getPlayerTotal()}. You've busted. Better luck next game!`);
+          console.log(`You've busted. Better luck next game!`);
           gameState === "bust";
+          break;
+        case 'choice':
+          console.log('Do you choose to Hit or Stand?');
           break;
         default:
           console.log("You should never see this message - From playGame() player section.");
       }
-  } else if (gameState === "dealer"){
+  } else if (gameState === "dealer") {
+      console.log(`Alright your final total is: ${getPlayerTotal()}`);
+      console.log(' ');
       let dealerOutcome = dealerTurn(); // blackjack, stand, bust
       switch (dealerOutcome) {
         case "bust":
@@ -265,6 +297,7 @@ async function playGame() {
           console.log('Dealer has blackjack!');
           break;
         case "stand":
+          // console.log(`**TEST FROM PLAYGAME DEALER** YOUR TOTAL:${getPlayerTotal()}  DEALER TOTAL:${getDealerTotal()}.    ${dealerOutcome} WAS RETURNED`);
           if (getPlayerTotal() > getDealerTotal()) {
             console.log('You win!');
           } else if (getPlayerTotal() < getDealerTotal()) {
