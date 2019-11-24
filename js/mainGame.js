@@ -27,14 +27,22 @@ function resetBoard() {
   //reset boardVisuals
 }
 
-function newHand() {
+async function newHand() {
   console.log('-------------------------');
+  let flushHand = [];
+  flushHand = playerHand.concat(dealerHand);
+  deck = deck.concat(flushHand);
+  if (gamesPlayedCounter % 3 === 0 && gamesPlayedCounter !==0 ) { //every 3 games, reshuffle and redraw deck variable, this calls the api so limited it from every game
+    await shuffleDeck();
+    console.log("RESUFFLING DECK");
+  }
   gamesPlayedCounter++;
   playerHand = deal(2);
   dealerHand = deal(2);
   gameState = "player";
   playerTurn();
 }
+  
 
   //createBoard()
   //this should call the newDeck to set the deck array and deckId
@@ -65,36 +73,28 @@ async function drawCards(numOfCards) {
 
 //Shuffles the deck without having to create a new one, and then refills the deck array with newly shuffled cards.
 async function shuffleDeck() {
+  console.log(deck);
   let shuffleObj = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/shuffle/`); //Shuffles the deck on the API side.
   deck = await drawCards(312); //re-draws all the cards and refills the deck array with the now shuffled 312 cards.
+  console.log(deck);
 }
 
 
-//takeFromDeck(number of cards)
-//returns an array filled with the number of cards given in the parameter
-function takeFromDeck(numOfCards) {
-  let cards = [];
-  if (numOfCards === 1) {
-    cards.push(deck.shift());
-    return cards;
-  } else {
-    cards = deck.splice(0, numOfCards);// splice returns cards starting at the first variable, number of cards to return. So if first arg is 0, returning starting at the start of the array.  If I wanted to return the final 2 cards I would use splice(-numofcards, numofcards) (negative2, 2)
-    return cards;
-  }
-}
-//COMBINE TAKE FROM DECK AND DEAL AT SOME POINT *******************
 //deal
 //ORIGINAL VERSION DOES NOT WORK BUT DONT UNDERSTAND WHY: WHY CAN'T I PASS 2 ARGUMENTS, THE GLOBAL DECK THAT I WISH TO APPEND TO AND THE NUMBER OF CARDS TO APPEND, ITS A REFERENCE ISSUE BUT I JUST DONT UNDERSTAND IT. NEVERTHE LESS CHANGED TO ONLY HAVE ONE PARAMETER AND DO THE BINDING IN THE FUNCTION THAT IS CALLING THIS INSTEAD OF INSIDE THIS FUNCTION
 //This function returns the number of cards you need. I feel like I could combine takeFromDeck and this but this works for now.
 function deal(numOfCards) {
+  let cards = [];
   if (numOfCards === 1) { //check if you are only requesting one card so that you return the object and not another array.
-    return takeFromDeck(numOfCards).pop();
+    cards.push(deck.shift());
+    return cards.pop();
   } else {
-    return takeFromDeck(numOfCards).slice();// because just saying array1 = array2 just creates a reference and doesnt copy it over, we need to use slice() with an empty argument instead to slice the entire array and return those values.
+    cards = deck.splice(0, numOfCards);// splice returns cards starting at the first variable, number of cards to return. So if first arg is 0, returning starting at the start of the array.  If I wanted to return the final 2 cards I would use splice(-numofcards, numofcards) (negative2, 2)
+    return cards.slice();// because just saying array1 = array2 just creates a reference and doesnt copy it over, we need to use slice() with an empty argument instead to slice the entire array and return those values.
   }
 }
 
-function calculateValue(isEleven, value) { // grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a number value.
+function calculateValue(value) { // grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a number value.
   switch (value) {
     case 'KING':
     case 'QUEEN':
@@ -102,7 +102,8 @@ function calculateValue(isEleven, value) { // grabs the 'value' value from the c
       value = 10;
       break;
     case 'ACE':
-      isEleven ? value = 11 : value = 1;
+      // isEleven ? value = 11 : value = 1;
+      value = 11;
       break;
     default:
       value = parseInt(value);
@@ -112,13 +113,18 @@ function calculateValue(isEleven, value) { // grabs the 'value' value from the c
 
 //returns the total value of the cards in the player's hand
 function getPlayerTotal() { // get highest total without busting
-  let total = 0;
-  for (let i = 0; i < playerHand.length; i++) {
-    let value = calculateValue(true, playerHand[i].value);
-    if (total + value > 21) {
-      value = calculateValue(false, playerHand[i].value);
+  let total = 0; //sum
+  let aceCounter = 0; //To see if we need to lower an ace's value from 11 to 1 if total is over 21
+  for (let i = 0; i < playerHand.length; i++) { //iterate through the hand
+    let value = calculateValue(playerHand[i].value); //grab and bind each cards value, pass it through the calculateValue because some of the innate values are KING/JACK/ACE/QUEEN and we want straight # values 
+    if (value === 11) { //if we have an ace, up the counter incase we need to lower the value of one of them to 1
+      aceCounter++;
     }
-    total += value;
+    if ((value + total > 21) && (aceCounter > 0)) {//If we're busting and happen to have an ace that hasnt had its value lowered yet, set that 11 to a 1!
+      total -= 10; //subtract the difference
+      aceCounter--; //ace is counted, no more 11-value-aces
+    }
+    total += value; //add up the total
   }
   return total;
 }
