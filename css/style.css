@@ -21,7 +21,8 @@ body {
 }
 
 #mainWrapper {
-  /* background-image: url('../images/greenfelt.jpg'); */
+  background-image: url('../images/greenfelt.jpg');
+  background-size: 80%;
   display: flex;
   flex-direction: row;
   justify-content: space-evenly;
@@ -29,20 +30,19 @@ body {
   border: 1px solid black;
 }
 #gameBoard {
-  background-color: green;
+  /* background-color: green; */
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* justify-content: center; */
   border: 1px solid black;
   width: 53.3%;
 }
 #helpBoard {
-  background-color: red;
+  /* background-color: red; */
   width: 23.3%;
 }
 #textBoard {
-  background-color: yellow;
+  /* background-color: yellow; */
   width: 23.3%;
 }
 
@@ -57,20 +57,29 @@ body {
 
 
 #playerCards{
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  /* cardwidth */
+  grid-template-columns: repeat(300, 35px);
+  /* cardHeight */
+  grid-template-rows: 290px;
+  max-width: 300px;
 }
 #dealerCards{
-  display: flex;
-  flex-direction: row;
+  /* display: flex;
+  flex-direction: row; */
+  display: grid;
+  grid-template-columns: repeat(30, 35px);
+  grid-template-rows: 290px;
+  max-width: 300px;
 }
-
-
 
 #gameOptions {
   visibility: visible;
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
+  align-content: space-around;
+  border: 1px solid black;
 }
 
 #wagerOptions {
@@ -89,12 +98,25 @@ body {
 }
 
 .card {
-  border: 1px solid black;
-  height: 188.4px;
-  width: 135.6px;
+  /* height: 188.4px;
+  width: 135.6px; */
   background-image: url('../images/cardback.png');
   background-size: cover;
   margin: 20px 0;
+  grid-row-start: 1;
+  background-color: lightgreen; 
+  border: 1px solid black;
 }
+
+/* Got from stack overflow to overlap: https://stackoverflow.com/questions/43919067/make-flex-items-overlap/43919987 */
+.card:nth-child(1) { grid-column: 1 / 6; }
+.card:nth-child(2) { grid-column: 4 / 9; }
+.card:nth-child(3) { grid-column: 7 / 12; }
+.card:nth-child(4) { grid-column: 10 / 15; }
+.card:nth-child(5) { grid-column: 13 / 18; }
+.card:nth-child(6) { grid-column: 16 / 21; }
+.card:nth-child(7) { grid-column: 19 / 24; }
+.card:nth-child(8) { grid-column: 22 / 27; }
+.card:nth-child(9) { grid-column: 25 / 30; }
 
 /* 135.6px x 188.4px */
