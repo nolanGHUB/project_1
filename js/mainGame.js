@@ -284,10 +284,10 @@ async function playGame() {
       let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
       switch (playerOutcome) {
         case '21':
-          console.log("You have a 21, dealer's turn.");
+          console.log("You have a 21! You stand. Dealer's turn:");
           setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
             stand();
-          }, 1750);
+          }, 750);
           break;
         case 'bust':
           console.log(`You've busted. Better luck next game!`);
