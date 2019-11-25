@@ -3,12 +3,15 @@ const newHandButton = document.querySelector('#newHandButton');
 const hitButton = document.querySelector('#hitButton');
 const standButton = document.querySelector('#standButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
+const wagerButtons = document.querySelector('#wagerOptions');
+
 let deckId;
 // let getCardsURL = `https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=` //add the # of cards you want from the deck (52 = 1 deck, 312 = 6 decks)
 let deck; // store the full 52 card deck here. (array of card objects)
 let gameState = "start"; //Should be a string equating to the current gameState such as "over", "bet", "inHand", "outHand", & "start"
 let gamesPlayedCounter = 0;
 let money = 500;
+let currentBet = 0;
 let dealerHand = [];
 let playerHand = [];
 //BACK OF CARD IMAGE = 226px x 314px
@@ -59,6 +62,9 @@ async function newHand() {
   console.log(' ');
   console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   console.log(' ');
+
+  
+
   //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
     gameState = "over";
@@ -210,34 +216,6 @@ function checkPlayerNatural() { // does the same but for the player, called from
   }
 }
 
-//have the dealer perform his turn after the player has stood.
-function dealerTurn() { // returns the result of the dealers moves: blackjack, bust, stand, push.  blackjack result depreciated.
-  gameState = "dealer";
-  let dealerTotal = getDealerTotal();
-  let dealerTurnOver = false;
-  //flip dealers unflipped card
-  console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-  console.log(`Dealer's total is: ${dealerTotal}`);
-
-  while (dealerTurnOver === false) { //dealer `ai` 
-    if (dealerTotal > 21) {//if dealer bust
-      dealerTurnOver = true;
-      return "bust"
-    } else if (dealerTotal >= 17) {
-      console.log('Dealer Stands');
-      dealerTurnOver = true;
-      return "stand";
-    } else {
-      dealerHand.push(deal(1));
-      console.log('Dealer chooses to hit.');
-      console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
-      dealerTotal = getDealerTotal();
-      console.log(`Dealer's new total is ${dealerTotal}`);
-      dealerTurnOver === false;
-    }
-  }
-}
-
 //if hit button is pressed
 function hit() {
   gameState = 'player';
@@ -302,27 +280,54 @@ async function playGame() {
   } else if (gameState === "dealer") {
       console.log(`Alright your final total is: ${getPlayerTotal()}`);
       console.log(' ');
-      let dealerOutcome = dealerTurn(); // blackjack, stand, bust
-      switch (dealerOutcome) {
-        case "bust":
-          console.log('Dealer has busted! You win!');
-          break;
-        case "blackjack":
-          console.log('Dealer has blackjack!');
-          break;
-        case "stand":
-          // console.log(`**TEST FROM PLAYGAME DEALER** YOUR TOTAL:${getPlayerTotal()}  DEALER TOTAL:${getDealerTotal()}.    ${dealerOutcome} WAS RETURNED`);
-          if (getPlayerTotal() > getDealerTotal()) {
-            console.log('You win!');
-          } else if (getPlayerTotal() < getDealerTotal()) {
-            console.log('Sorry, you lose this round. Better luck next game!');
-          } else {
-            console.log('Push! No money won or lost.');
-          }
-          break;
-        default:
-          console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
-      }  
+      console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+      let dealerTotal = getDealerTotal();
+      console.log(`Dealer's total is: ${dealerTotal}`);
+      let dealResult = "";
+
+      let promise = new Promise(function (resolve) {
+        let dealerThink = setInterval(function () {
+        if (dealerTotal > 21) {//if dealer bust
+          dealResult = 'bust';
+          resolve(dealResult);
+          clearInterval(dealerThink);
+        } else if (dealerTotal >= 17) {
+          console.log('Dealer Stands');
+          dealResult = 'stand';
+          resolve(dealResult);
+          clearInterval(dealerThink);
+        } else {
+          dealerHand.push(deal(1));
+          console.log('Dealer chooses to hit.');
+          console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
+          dealerTotal = getDealerTotal();
+          console.log(`Dealer's new total is ${dealerTotal}`);
+        }
+      }, 1000);
+      });
+
+      promise.then(function (dealResult) {
+        switch (dealResult) {
+          case "bust":
+            console.log('Dealer has busted! You win!');
+            break;
+          case "blackjack":
+            console.log('Dealer has blackjack!');
+            break;
+          case "stand":
+            // console.log(`**TEST FROM PLAYGAME DEALER** YOUR TOTAL:${getPlayerTotal()}  DEALER TOTAL:${getDealerTotal()}.    ${dealerOutcome} WAS RETURNED`);
+            if (getPlayerTotal() > getDealerTotal()) {
+              console.log('You win!');
+            } else if (getPlayerTotal() < getDealerTotal()) {
+              console.log('Sorry, you lose this round. Better luck next game!');
+            } else {
+              console.log('Push! No money won or lost.');
+            }
+            break;
+          default:
+            console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
+        } 
+      }); 
   } else if (gameState === "bust") {
     console.log("***YOU BUST!***");
     // resetBoard();
@@ -330,7 +335,6 @@ async function playGame() {
     //only show the deal new game button.
     // hide hit and stand
   } else if (gameState === "start") {
-    //call gameInit()
     await gameInit();
   }  
 }
@@ -343,4 +347,24 @@ window.onload = function () {
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
 
+  //wagering
+  wagerButtons.addEventListener('click', async function (e) {
+    const betAmount = e.target.id;
+    let currentAmountClicked = 0;
+    switch (betAmount) {
+      case '5':
+        currentAmountClicked = 5;
+        break;
+      case '10':
+        currentAmountClicked = 10;
+        break;
+      case '25':
+        currentAmountClicked = 25;
+        break;
+      default:
+        console.log("SOMEHOW AN UN-EXPECTED BET WAS PLACED?? FROM EVENTLISTENER ON WAGERBUTTONS");
+    }
+    currentBet += currentAmountClicked;
+    console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+  });
 }
