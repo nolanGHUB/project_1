@@ -62,9 +62,16 @@ async function newHand() {
   console.log(' ');
   console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   console.log(' ');
-
   
+  gameState = 'bet';
+  wagerButtons.style.visibility = 'visible';
+  console.log('***PLACE YOUR BETS***');
 
+  // playGame();
+  //doShowCorrectButtons here.
+}
+
+function checkIfNatural() {
   //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
     gameState = "over";
@@ -77,12 +84,11 @@ async function newHand() {
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
     gameState = "over";
     console.log('You have Blackjack!, You win!'); 
+    playGame();
   } else {
     gameState = "player";
-    // playerTurn();
     playGame();
   }
-  
 }
   
 
@@ -255,10 +261,12 @@ function playerTurn() {
 //all gameState variable changes will occur in other functions, then recall playGame() and playGame will jump to the appropriate
 //part due to it checking the gameState
 async function playGame() {
-    if (gameState === "bet") {
+  if (gameState === "natural") {
+    checkIfNatural();
     //call function to create betting options appear, create functions to respond to those button clicks & change the gameState if finish betting 
     //is set and then recall playGame()
-  } else if (gameState === "player") {
+    } else if (gameState === "player") {
+      
       let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
       switch (playerOutcome) {
         case '21':
@@ -354,17 +362,28 @@ window.onload = function () {
     switch (betAmount) {
       case '5':
         currentAmountClicked = 5;
+        currentBet += currentAmountClicked;
+        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
         break;
       case '10':
         currentAmountClicked = 10;
+        currentBet += currentAmountClicked;
+        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
         break;
       case '25':
         currentAmountClicked = 25;
+        currentBet += currentAmountClicked;
+        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        break;
+      case 'bet':
+        console.log(`Alright a total of ${betAmount} was placed.`);
+        wagerButtons.style.visibility = 'hidden';
+        checkIfNatural();
         break;
       default:
+        console.log(betAmount);
         console.log("SOMEHOW AN UN-EXPECTED BET WAS PLACED?? FROM EVENTLISTENER ON WAGERBUTTONS");
     }
-    currentBet += currentAmountClicked;
-    console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+    
   });
 }
