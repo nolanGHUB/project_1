@@ -1,12 +1,82 @@
 body {
-  /* background-color: blanchedalmond; */
-  background-image: url('../images/greenfelt.jpg');
-  background-size: 55%;
+  background-color: blanchedalmond;
+  /* background-image: url('../images/greenfelt.jpg');
+  background-size: 55%; */
+  min-height: 95vh;
 }
 
-#gameBoard {
+#bodyWrapper {
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  border: 1px solid black;
+}
+
+#topWrapper {
+  background-color: blue;
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+  height: 15%;
+  border: 1px solid black;
+}
+
+#mainWrapper {
+  /* background-image: url('../images/greenfelt.jpg'); */
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  height: 70%;
+  border: 1px solid black;
+}
+#gameBoard {
+  background-color: green;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: center; */
+  border: 1px solid black;
+  width: 53.3%;
+}
+#helpBoard {
+  background-color: red;
+  width: 23.3%;
+}
+#textBoard {
+  background-color: yellow;
+  width: 23.3%;
+}
+
+#optionWrapper {
+  background-color: purple;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 15%;
+  border: 1px solid black;
+}
+
+
+#playerCards{
+  display: flex;
+  flex-direction: row;
+}
+#dealerCards{
+  display: flex;
+  flex-direction: row;
+}
+
+
+
+#gameOptions {
+  visibility: visible;
+  display: flex;
+  flex-direction: row;
+}
+
+#wagerOptions {
+  visibility: visible;
+  display: flex;
+  flex-direction: row;
 }
 
 .gameButton {
@@ -18,3 +88,13 @@ body {
   margin-top: 10px;
 }
 
+.card {
+  border: 1px solid black;
+  height: 188.4px;
+  width: 135.6px;
+  background-image: url('../images/cardback.png');
+  background-size: cover;
+  margin: 20px 0;
+}
+
+/* 135.6px x 188.4px */

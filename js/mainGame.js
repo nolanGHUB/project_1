@@ -8,6 +8,7 @@ let deckId;
 let deck; // store the full 52 card deck here. (array of card objects)
 let gameState = "start"; //Should be a string equating to the current gameState such as "over", "bet", "inHand", "outHand", & "start"
 let gamesPlayedCounter = 0;
+let money = 500;
 let dealerHand = [];
 let playerHand = [];
 //BACK OF CARD IMAGE = 226px x 314px
@@ -26,9 +27,22 @@ async function gameInit() {
   console.log(`Six new decks created! The deckId = ${deckId}`);
   deck = await drawCards(312);//Fills the global deck array up with the full 6 decks, and they are ALREADY SHUFFLED, not necessary to follow up with shuffleDeck.
 }
+
+//All payouts are 1:1, unless player gets a blackjack, then payout is 3:2.  negative payouts accepted for losses. 0 accepted for even money/push?
+function payout(ratio) { //ratio should be either 1, 1.75 or -1.
+  let total = 0;
+  total = money * ratio;
+  return total;
+}
+
+//have all the event liseners for bet buttons point here, then figure out which using... getAttribute? values will be hard coded?
+//Maybe Have 1 5 10 25 50 100 buttons and then a BET button & have the buttons add to a visible numerical total then on click they all point here and this function just looks at the number. using a querySelector innerText?
+function setWager() {
+  
+}
   
 
-
+// I think this is where payout will be called, somehow in here.
 async function newHand() {
   console.log('-----------------------NEW HAND---------------------------');
   console.log('----------------------------------------------------------');
