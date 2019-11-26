@@ -24,17 +24,19 @@
 
       </div>
       <div id="gameBoard">
-        <div id="dealerCards">
-          <div id = "dealerTotal"></div>
-          <div class="card"></div>
-          <div class="card"></div>
-          
+        <div id="cardWrapper">
+          <div id="dealerCards">
+            <div class="card"></div>
+            <div class="card"></div>
+          </div>
+          <div id="playerCards">
+            <div class="card"></div>
+            <div class="card"></div>
+          </div>
         </div>
-        <div id="playerCards">
+        <div id="totalWrapper">
+          <div id="dealerTotal">0</div>
           <div id="playerTotal"></div>
-          <div class="card"></div>
-          <div class="card"></div>
-
         </div>
       </div>
       <div id="textBoard">
@@ -49,6 +51,7 @@
         </div>
         <div id="currentBetWrapper">
           <h4>Current Bet: $<span id="currentBet"></span></h4>
+          <h4><span id="message">PRESS START TO BEGIN!</span></h4>
         </div>
       </div>
     </div>

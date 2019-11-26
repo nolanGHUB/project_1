@@ -13,21 +13,31 @@ const dealer = document.querySelector('#dealerCards');
 const player = document.querySelector('#playerCards');
 const playerTotal = document.querySelector('#playerTotal');
 const dealerTotal = document.querySelector('#dealerTotal');
+const totalWrapper = document.querySelector('#totalWrapper');
+const message = document.querySelector('#message');
 
 let deckId;
 let deck; // store the full 52 card deck here. (array of card objects)
 let gameState = "start";
-let gamesPlayedCounter = 0;
-let money = 500;
-let score = 0;
-let currentBet = 0;
-let dealerHand = [];
-let playerHand = [];
+let gamesPlayedCounter;
+let money;
+let score;
+let currentBet;
+let dealerHand;
+let playerHand;
 //BACK OF CARD IMAGE = 226px x 314px
 
 
 async function gameInit() {
   // await newDeck();
+  gamesPlayedCounter = 0;
+  money = 100;
+  score = 0;
+  currentBet = 0;
+  dealerHand = [];
+  playerHand = [];
+  message.innerHTML = ' ';
+  gameStartButton.style.visibility = 'hidden';
   betDiv.innerText = currentBet;
   moneyDiv.innerText = money;
   scoreDiv.innerText = score;
@@ -48,10 +58,20 @@ function payout(ratio) { //ratio should be either 2(for win) or 2.75(for blackja
 }
 
 function startBetting() {
+  //do some screen resetting as startBetting is basically the first step of a new game.
+  message.innerHTML = 'PLACE YOUR BETS';
+  newHandButton.style.visibility = 'hidden';
   currentBet = 0;
-  betDiv.innerText = currentBet;
   dealer.innerHTML = ' ';
   player.innerHTML = ' ';
+  dealerTotal.style.visibility = 'hidden';
+  dealerTotal.innerHTML = getDealerTotal();
+  dealerTotal.style.margin = `0`;
+  setTotalVisual(0, true);
+  playerTotal.innerHTML = '';
+  betDiv.innerText = currentBet;
+
+  //now make betting begin
   gameState = 'bet';
   wagerButtons.style.visibility = 'visible';
   console.log('***PLACE YOUR BETS***');
@@ -64,6 +84,7 @@ async function newHand() {
   console.log('----------------------------------------------------------');
   // currentBet = 0;
   // betDiv.innerText = currentBet;
+
   dealer.innerHTML = ' ';
   player.innerHTML = ' ';
   let flushHand = [];
@@ -73,8 +94,7 @@ async function newHand() {
   gamesPlayedCounter++;
   playerHand = deal(2, player, true);
   dealerHand = deal(2, dealer, false);
-  playerTotal.innerHTML = getPlayerTotal();
-  dealerTotal.innerHTML = getDealerTotal();
+  setTotalVisual(0, true);
   console.log('Player, your hand is:');
   console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
   console.log(`Your total is: ${getPlayerTotal()}`);
@@ -90,20 +110,46 @@ async function newHand() {
   //doShowCorrectButtons here.
 }
 
+function moneyCheck() {
+  if (money <= 0) {
+    message.innerHTML = "YOU'RE OUT OF MONEY! COME BACK AGAIN SOON!"
+    gameStartButton.style.visibility = 'visible';
+    newHandButton.style.visibility = 'hidden';
+  }
+  else {
+    startBetting();
+  }
+}
+
+function setTotalVisual(indentBy, toPlayer) {
+  let totalMarginIndent = 61 * indentBy; 
+  if (toPlayer) {
+    playerTotal.innerHTML = getPlayerTotal();
+    playerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
+  } else {
+    dealerTotal.style.visibility = 'visible';
+    dealerTotal.innerHTML = getDealerTotal();
+    dealerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
+  }
+}
+
 function checkIfNatural() {
   //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
     gameState = "over";
     console.log(`Dealer has Blackjack! Better luck next game.`);
+    conclusion("dbj");
     playGame();
   } else if (checkDealerNatural() === true && checkPlayerNatural() === true) {
     gameState = "over";
     console.log('You AND the dealer both have Blackjack! No payouts.');
+    conclusion('both');
     payout(1);
     playGame();
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
     gameState = "over";
     console.log('You have Blackjack!, You win!'); 
+    conclusion('pbj');
     payout(2.75);
     playGame();
   } else {
@@ -248,6 +294,7 @@ function getDealerTotal() {
 function hit() {
   gameState = 'player';
   playerHand.push(deal(1, player, true));
+  setTotalVisual(playerHand.length - 2, true);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
   playGame();
@@ -257,6 +304,36 @@ function hit() {
 function stand() {  //This is a workaround function I use for a few reasons. Sometimes I call this from within playGame, how can I call playGame from within playGame? So I use this boom-a-rang function with a gameState variable to jump to where I need to in playGame().
   gameState = "dealer";
   playGame();
+}
+
+function conclusion(endCase) {
+  switch (endCase) {
+    case 'dbj':
+      message.innerHTML = 'DEALER HAS BLACKJACK. BETTER LUCK NEXT GAME.';
+      break;
+    case 'push':
+      message.innerHTML = 'PUSH. EVEN MONEY.';
+      break;
+    case 'pbj':
+      message.innerHTML = 'YOU HAVE BLACKJACK!!';
+      break;
+    case 'dbust':
+      message.innerHTML = 'DEALER BUSTS! YOU WIN!';
+      break;
+    case 'pbust':
+      message.innerHTML = 'YOU BUST, BETTER LUCK NEXT GAME.'
+      break;
+    case 'both':
+      message.innerHTML = 'YOU BOTH HAVE BLACKJACKS! UNCANNY! NO MONEY WON.'
+      break;
+    case 'dstandlose':
+      message.innerHTML = 'DEALER WINS, TRY AGAIN!'
+      break;
+    case 'dstandwin':
+      message.innerHTML = 'DEALER STANDS, YOU WIN!'
+      break;
+  }
+  newHandButton.style.visibility = 'visible';
 }
 
 //returns natural for 2-card blackjack, 21 or bust.  hit() and stand() do the rest of the player logic.
@@ -278,37 +355,38 @@ function playerTurn() {
 //all gameState variable changes will occur in other functions, then recall playGame() and playGame will jump to the appropriate
 //part due to it checking the gameState
 async function playGame() {
-  if (gameState === "natural") {
-    // checkIfNatural();
-    //call function to create betting options appear, create functions to respond to those button clicks & change the gameState if finish betting 
-    //is set and then recall playGame()
-    } else if (gameState === "player") {
-      gameButtons.style.visibility = 'visible';
-      let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
-      switch (playerOutcome) {
-        case '21':
-          console.log("You have a 21! You stand. Dealer's turn:");
-          setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
-            stand();
-          }, 750);
-          break;
-        case 'bust':
-          console.log(`You've busted. Better luck next game!`);
-          gameButtons.style.visibility = 'hidden';
-          gameState === "bust";
-          break;
-        case 'choice':
-          console.log('Do you choose to Hit or Stand?');
-          break;
-        default:
-          console.log("You should never see this message - From playGame() player section.");
-      }
+  if (gameState === "player") {
+    gameButtons.style.visibility = 'visible';
+    let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+    switch (playerOutcome) {
+      case '21':
+        console.log("You have a 21! You stand. Dealer's turn:");
+        setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
+          stand();
+        }, 750);
+        break;
+      case 'bust':
+        console.log(`You've busted. Better luck next game!`);
+        conclusion('pbust');
+        gameButtons.style.visibility = 'hidden';
+        newHandButton.style.visibility = 'visible';
+        gameState === "bust";
+        break;
+      case 'choice':
+        console.log('Do you choose to Hit or Stand?');
+        message.innerHTML = 'HIT OR STAND?';
+        break;
+      default:
+        console.log("You should never see this message - From playGame() player section.");
+    }
   } else if (gameState === "dealer") {
       console.log(`Alright your final total is: ${getPlayerTotal()}`);
       console.log(' ');
-    console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-    flipDealersCard();
+      console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+      flipDealersCard();
+      setTotalVisual(0, false);
       gameButtons.style.visibility = 'hidden';
+      
       let dealerTotal = getDealerTotal();
       console.log(`Dealer's total is: ${dealerTotal}`);
       let dealResult = "";
@@ -326,6 +404,7 @@ async function playGame() {
           clearInterval(dealerThink);
         } else {
           dealerHand.push(deal(1, dealer, true));
+          setTotalVisual(dealerHand.length - 2, false);
           console.log('Dealer chooses to hit.');
           console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
           dealerTotal = getDealerTotal();
@@ -334,39 +413,38 @@ async function playGame() {
       }, 1000);
       });
 
-      promise.then(function (dealResult) {
-        switch (dealResult) {
-          case "bust":
-            console.log('Dealer has busted! You win!');
+    promise.then(function (dealResult) {
+      switch (dealResult) {
+        case "bust":
+          console.log('Dealer has busted! You win!');
+          newHandButton.style.visibility = 'visible';
+          conclusion('dbust');
+          payout(2);
+          break;
+        case "blackjack":
+          console.log('Dealer has blackjack!');
+          newHandButton.style.visibility = 'visible';
+          break;
+        case "stand":
+          // console.log(`**TEST FROM PLAYGAME DEALER** YOUR TOTAL:${getPlayerTotal()}  DEALER TOTAL:${getDealerTotal()}.    ${dealerOutcome} WAS RETURNED`);
+          if (getPlayerTotal() > getDealerTotal()) {
+            console.log('You win!');
+            conclusion('dstandwin');
             payout(2);
-            break;
-          case "blackjack":
-            console.log('Dealer has blackjack!');
-            break;
-          case "stand":
-            // console.log(`**TEST FROM PLAYGAME DEALER** YOUR TOTAL:${getPlayerTotal()}  DEALER TOTAL:${getDealerTotal()}.    ${dealerOutcome} WAS RETURNED`);
-            if (getPlayerTotal() > getDealerTotal()) {
-              console.log('You win!');
-              payout(2);
-            } else if (getPlayerTotal() < getDealerTotal()) {
-              console.log('Sorry, you lose this round. Better luck next game!');
-            } else {
-              console.log('Push! No money won or lost.');
-              payout(1);
-            }
-            break;
-          default:
-            console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
-        } 
-      }); 
-  } else if (gameState === "bust") {
-    console.log("***YOU BUST!***");
-    // resetBoard();
-  } else if (gameState === "over") {
-    //only show the deal new game button.
-    // hide hit and stand
-  } else if (gameState === "start") {
-    await gameInit();
+          } else if (getPlayerTotal() < getDealerTotal()) {
+            console.log('Sorry, you lose this round. Better luck next game!');
+            conclusion('dstandlose');
+          } else {
+            console.log('Push! No money won or lost.');
+            conclusion('push');
+            payout(1);
+          }
+          newHandButton.style.visibility = 'visible';
+          break;
+        default:
+          console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
+      } 
+    }); 
   }  
 }
 
@@ -374,7 +452,7 @@ async function playGame() {
 window.onload = function () {
   
   gameStartButton.addEventListener('click', gameInit);
-  newHandButton.addEventListener('click', newHand);
+  newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
 
@@ -385,18 +463,24 @@ window.onload = function () {
     switch (betAmount) {
       case '5':
         currentAmountClicked = 5;
-        currentBet += currentAmountClicked;
-        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        if ((currentAmountClicked + currentBet <= money)) {
+          currentBet += currentAmountClicked;
+          console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        }
         break;
       case '10':
         currentAmountClicked = 10;
-        currentBet += currentAmountClicked;
-        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        if ((currentAmountClicked + currentBet <= money)) {
+          currentBet += currentAmountClicked;
+          console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        }
         break;
       case '25':
         currentAmountClicked = 25;
-        currentBet += currentAmountClicked;
-        console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        if ((currentAmountClicked + currentBet <= money)) {
+          currentBet += currentAmountClicked;
+          console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
+        }
         break;
       case 'bet':
         console.log(`Alright a total of $${currentBet} was placed.`);

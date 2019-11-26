@@ -23,6 +23,11 @@ body {
   margin-right: 30px;
 }
 
+#message {
+  font-size: 30px;
+  padding-top: 20px;
+}
+
 #mainWrapper {
   background-image: url('../images/greenfelt.jpg');
   background-size: 80%;
@@ -35,10 +40,9 @@ body {
 #gameBoard {
   /* background-color: green; */
   display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 53.3%;
 }
+
 #helpBoard {
   /* background-color: red; */
   width: 23.3%;
@@ -55,13 +59,15 @@ body {
   margin-left: 30px;
 }
 
+#newHandButton {
+  visibility: hidden;
+}
 #optionWrapper {
   background-color: purple;
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 15%;
-  border: 1px solid black;
 }
 #gameOptions {
   visibility: hidden;
@@ -69,7 +75,6 @@ body {
   flex-direction: row;
   justify-content: space-around;
   width: 100%;
-  border: 1px solid black;
 }
 #wagerOptions {
   visibility: hidden;
@@ -78,7 +83,26 @@ body {
   width: 100%;
   justify-content: space-around;
 }
-
+#totalWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  color: white;
+  font-size: 20px;
+  font-weight: 800;
+  margin-left: 0px;
+}
+#dealerTotal {
+  visibility: hidden;
+  margin-left: 21px;
+}
+#playerTotal {
+  margin-left: 0px;
+}
+#cardWrapper {
+  display: flex;
+  flex-direction: column;
+}
 #playerCards{
   display: grid;
   /* cardwidth */
