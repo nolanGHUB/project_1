@@ -18,7 +18,7 @@ const message = document.querySelector('#message');
 
 let deckId;
 let deck; // store the full 52 card deck here. (array of card objects)
-let gameState = "start";
+let gameState;
 let gamesPlayedCounter;
 let money;
 let score;
@@ -72,8 +72,6 @@ function startBetting() {
   playerTotal.innerHTML = '';
   betDiv.innerText = currentBet;
 
-  //now make betting begin
-  gameState = 'bet';
   // wagerButtons.style.visibility = 'visible';
   wagerButtons.style.display = 'flex';
   console.log('***PLACE YOUR BETS***');
@@ -129,27 +127,24 @@ function setTotalVisual(indentBy, toPlayer) {
 
 function checkIfNatural() {
   //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
+  gameState = 'player';
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
-    gameState = "over";
     flipDealersCard();
     console.log(`Dealer has Blackjack! Better luck next game.`);
     conclusion("dbj");
     playGame();
   } else if (checkDealerNatural() === true && checkPlayerNatural() === true) {
-    gameState = "over";
     console.log('You AND the dealer both have Blackjack! No payouts.');
     conclusion('both');
     payout(1);
     playGame();
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
-    gameState = "over";
     console.log('You have Blackjack!, You win!'); 
     flipDealersCard();
     conclusion('pbj');
     payout(2.75);
     playGame();
   } else {
-    gameState = "player";
     playGame();
   }
 }
@@ -288,11 +283,11 @@ function getDealerTotal() {
 
 //if hit button is pressed
 function hit() {
-  gameState = 'player';
   playerHand.push(deal(1, player, true));
   setTotalVisual(playerHand.length - 2, true);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
+  gameState = 'player';
   playGame();
 }
 
@@ -337,7 +332,6 @@ function conclusion(endCase) {
 function playerTurn() {
   let playerTotal = getPlayerTotal();
   if (playerTotal > 21) { 
-    gameState = "bust";
     return "bust";
   } else if (playerTotal === 21) {
     return "21";
@@ -371,7 +365,6 @@ async function playGame() {
         gameButtons.style.display = 'none';
         // newHandButton.style.visibility = 'visible';
         newHandButton.style.visibility = 'block';
-        gameState === "bust";
         break;
       case 'choice': // if player neither gets a 21 or bust, they must still make a decision: hit or stand?
         console.log('Do you choose to Hit or Stand?');
@@ -490,9 +483,7 @@ window.onload = function () {
         console.log(`Alright a total of $${currentBet} was placed.`);
         money -= currentBet;
         moneyDiv.innerText = money;
-        // wagerButtons.style.visibility = 'hidden';
         wagerButtons.style.display = 'none';
-        // checkIfNatural();
         newHand();
         break;
       default:
