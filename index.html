@@ -7,22 +7,16 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script defer src="js/mainGame.js" charset="utf-8"></script>
   <link rel="stylesheet" href="css/style.css" type="text/css"></script>
+  <link href="https://fonts.googleapis.com/css?family=Baloo|Forum|Modak&display=swap" rel="stylesheet">
   <title>Blackjack - By Nolan</title>
 </head>
 <body>
   <div id="bodyWrapper">
     <div id="topWrapper">
-      <div class="gameButton" id="gameStartButton">
-          Start
-      </div>
-      <div class="gameButton" id="newHandButton">
-          New Hand
-      </div>
+      <div id="topTitle">BLACKJACK</div> 
+      <div id="topPadding"></div>
     </div>
     <div id="mainWrapper">
-      <div id="helpBoard">
-
-      </div>
       <div id="gameBoard">
         <div id="cardWrapper">
           <div id="dealerCards">
@@ -40,18 +34,30 @@
         </div>
       </div>
       <div id="textBoard">
-        <div id="scoreWrapper">
-          <h4>Score: <span id="score"></span></h4>
+        <div id="textWrapper">
+          <div id="scoreWrapper">
+            <div>Score: <span id="score"></span></div>
+          </div>
+          <div id="gameCounterWrapper">
+            <div>Games Played: <span id="gamesPlayed"></span></div>
+          </div>
+          <div id="cashWrapper">
+            <div>Cash: $<span id="cash"></span></div>
+          </div>
+          <div id="currentBetWrapper">
+            <div>Current Bet: $<span id="currentBet"></span></div>
+          </div>
+          <div id="messageWrapper">
+          <span id="message">PRESS START TO BEGIN!</span>
+          </div>
         </div>
-        <div id="gameCounterWrapper">
-          <h4>Games Played: <span id="gamesPlayed"></span></h4>
-        </div>
-        <div id="cashWrapper">
-          <h4>Cash: $<span id="cash"></span></h4>
-        </div>
-        <div id="currentBetWrapper">
-          <h4>Current Bet: $<span id="currentBet"></span></h4>
-          <h4><span id="message">PRESS START TO BEGIN!</span></h4>
+        <div id="startHandWrapper">
+          <div class="gameButton" id="gameStartButton">
+              Start
+          </div>
+          <div class="gameButton" id="newHandButton">
+              Deal
+          </div>
         </div>
       </div>
     </div>
@@ -71,23 +77,6 @@
 </body>
 </html>
 
-<!-- <div id="bodyWrapper">BODY WRAPPER
-  <div>
-    logo
-  </div>
-  <div>
-    GAMEBOARD
-    <div>
-      h
-    </div>
-    <div>
-      c
-    </div>
-    <div>
-      t
-    </div>
-  </div>
-  <div>
-    OPTION WRAPPER
-  </div>
-</div> -->
+
+<!-- gameButtons.style.visibility = 'visible'; -->
+<!-- wagerButtons -->

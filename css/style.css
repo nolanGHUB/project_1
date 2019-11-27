@@ -1,84 +1,125 @@
+/* font-family: 'Forum', cursive;
+font-family: 'Modak', cursive;
+font-family: 'Baloo', cursive; */
+
 body {
-  background-color: blanchedalmond;
+  background-color: rgb(255, 220, 168);
+  font-family: 'Baloo', cursive;
   /* background-image: url('../images/greenfelt.jpg');
   background-size: 55%; */
   min-height: 95vh;
+  margin: 0 auto;
+}
+img {
+  filter: drop-shadow(0 0 0.75rem rgb(215, 25, 25));
 }
 
 #bodyWrapper {
   display: flex;
   flex-direction: column;
-  border: 1px solid black;
+  width: 70%;
+  margin: 0 auto;
+  /* border: 1px solid black; */
 }
 
 #topWrapper {
-  background-color: blue;
+  /* font-family: 'Forum', cursive; */
+  /* font-family: 'Baloo', cursive; */
+  color: lightcoral;
+  font-weight: 600;
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  justify-content: space-around;
   height: 15%;
-  border: 1px solid black;
+  font-size: 75px;
+  /* border: 1px solid red; */
 }
+#topTitle {
+  /* border: 1px solid red; */
+  width: 65%;
+}
+#topPadding {
+  width: 30%;
+}
+
+#textWrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+#startHandWrapper {
+  margin: 0 0 5px 0;
+}
+
+#currentBetWrapper {
+  margin: 0 0 35px 0;
+}
+
 #gameStartButton {
   margin-right: 30px;
 }
 
+/* #messageWrapper {
+  margin: 
+} */
 #message {
-  font-size: 30px;
+  font-size: 36px;
   padding-top: 20px;
 }
 
 #mainWrapper {
-  background-image: url('../images/greenfelt.jpg');
-  background-size: 80%;
+  /* background-image: url('../images/greenfelt.jpg'); */
+  /* background-size: 80%; */
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
-  height: 70%;
-  border: 1px solid black;
+  justify-content: space-around;
+  height: 40%;
+  /* border: 1px solid red; */
 }
 #gameBoard {
   /* background-color: green; */
+  /* background-image: url('../images/greenfelt.jpg');
+  background-size: 80%; */
+  border-radius: 10px;
   display: flex;
-  width: 53.3%;
-}
-
-#helpBoard {
-  /* background-color: red; */
-  width: 23.3%;
+  /* align-items: center; */
+  width: 65%;
+  border: 3px solid lightcoral;
 }
 #textBoard {
   /* background-color: yellow; */
-  width: 23.3%;
+  width: 30%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  color: blanchedalmond;
+  justify-content: space-between;
+  color: lightcoral;
+  border: 3px solid lightcoral;
+  border-radius: 10px;
 }
 #textBoard > div{
-  margin-left: 30px;
+  margin-left: 5px;
+  font-size: 30px;
 }
 
 #newHandButton {
-  visibility: hidden;
+  display: none;
 }
 #optionWrapper {
-  background-color: purple;
+  /* background-color: purple; */
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 15%;
+  margin-top: 15px;
 }
 #gameOptions {
-  visibility: hidden;
-  display: flex;
+  display: none;
   flex-direction: row;
   justify-content: space-around;
   width: 100%;
 }
 #wagerOptions {
-  visibility: hidden;
-  display: flex;
+  display: none;
   flex-direction: row;
   width: 100%;
   justify-content: space-around;
@@ -87,8 +128,8 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
-  color: white;
-  font-size: 20px;
+  color: lightcoral;
+  font-size: 40px;
   font-weight: 800;
   margin-left: 0px;
 }
@@ -102,11 +143,12 @@ body {
 #cardWrapper {
   display: flex;
   flex-direction: column;
+  margin-left: 5px;
 }
 #playerCards{
   display: grid;
   /* cardwidth */
-  grid-template-columns: repeat(300, 35px);
+  grid-template-columns: repeat(30, 35px);
   /* cardHeight */
   grid-template-rows: 290px;
   max-width: 300px;
@@ -122,11 +164,15 @@ body {
 
 .gameButton {
   width: 100px;
-  background-color: cornsilk;
+  background-color: lightcoral;
   border-radius: 10px;
   text-align: center;
-  padding: 30px;
-  margin-top: 10px;
+  padding: 8px;
+  /* margin-top: 10px; */
+  color: cornsilk;
+  font-size: 30px;
+  font-family: 'Baloo', cursive;
+  cursor: pointer;
 }
 
 .card {
@@ -134,10 +180,9 @@ body {
   width: 135.6px; */
   background-image: url('../images/cardback.png');
   background-size: cover;
-  margin: 21px 0;
+  margin: 23px 0;
   grid-row-start: 1;
   border-radius: 9px;
-  
 }
 
 
