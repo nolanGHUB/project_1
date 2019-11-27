@@ -132,20 +132,24 @@ function checkIfNatural() {
     flipDealersCard();
     console.log(`Dealer has Blackjack! Better luck next game.`);
     conclusion("dbj");
-    playGame();
+    // playGame();
+    // playerTurn();
   } else if (checkDealerNatural() === true && checkPlayerNatural() === true) {
     console.log('You AND the dealer both have Blackjack! No payouts.');
     conclusion('both');
     payout(1);
-    playGame();
+    // playGame();
+    // playerTurn();
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
     console.log('You have Blackjack!, You win!'); 
     flipDealersCard();
     conclusion('pbj');
     payout(2.75);
-    playGame();
+    // playGame();
+    // playerTurn();
   } else {
-    playGame();
+    // playGame();
+    playerTurn();
   }
 }
 
@@ -287,14 +291,14 @@ function hit() {
   setTotalVisual(playerHand.length - 2, true);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
-  gameState = 'player';
-  playGame();
+  playerTurn();
 }
 
 //if stand button is pressed
 function stand() {  //This is a workaround function I use for a few reasons. Sometimes I call this from within playGame, how can I call playGame from within playGame? So I use this boom-a-rang function with a gameState variable to jump to where I need to in playGame().
-  gameState = "dealer";
-  playGame();
+  // gameState = "dealer";
+  // playGame();
+  dealerTurn();
 }
 
 function conclusion(endCase) {
@@ -340,6 +344,113 @@ function playerTurn() {
   }
 }
 
+function playerTurn() {
+  gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
+
+  let playerOutcome; // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+  let playerTotal = getPlayerTotal();
+  if (playerTotal > 21) { 
+    playerOutcome = "bust";
+  } else if (playerTotal === 21) {
+    playerOutcome =  "21";
+  } else {
+    playerOutcome = "choice";
+  }
+  switch (playerOutcome) {
+    case '21': // if the player has a non-natural 21, immediately end the turn by calling stand() for the player, because why would they hit?
+      console.log("You have a 21! You stand. Dealer's turn:");
+      gameButtons.style.display = 'none';
+      setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
+        stand();
+      }, 750);
+      break;
+    case 'bust': // if player busts, money has already been subtracted no need to do negative payout
+      console.log(`You've busted. Better luck next game!`);
+      conclusion('pbust');
+      // gameButtons.style.visibility = 'hidden';
+      gameButtons.style.display = 'none';
+      // newHandButton.style.visibility = 'visible';
+      newHandButton.style.visibility = 'block';
+      break;
+    case 'choice': // if player neither gets a 21 or bust, they must still make a decision: hit or stand?
+      console.log('Do you choose to Hit or Stand?');
+      message.innerHTML = 'HIT OR STAND?';
+      break;
+    default:
+      console.log("You should never see this message - From playGame() player section.");
+  }
+}
+
+function dealerTurn() {
+  console.log(`Alright your final total is: ${getPlayerTotal()}`);
+  console.log(' ');
+  console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
+  flipDealersCard();
+  setTotalVisual(0, false);
+  gameButtons.style.display = 'none';
+  let dealerTotal = getDealerTotal();
+  console.log(`Dealer's total is: ${dealerTotal}`);
+  let dealResult = "";
+
+  let promise = new Promise(function (resolve) { // if we dont use a promise here the game will keep going without the dealers turn being finished and the result will be undefined.
+    let dealerThink = setInterval(function () { // use setInterval to give the dealer a second delaye between each move so it doesn't all happen at once.
+    if (dealerTotal > 21) {//if dealer bust
+      dealResult = 'bust'; 
+      resolve(dealResult); //resolve is what is "returned" to the promise.then, so we are giving it the result that takes a second or more so that the promise knows to wait for this before using the value later on before its undefined.
+      clearInterval(dealerThink);
+    } else if (dealerTotal >= 17) { //dealer always stands on 17 or higher.
+      console.log('Dealer Stands');
+      dealResult = 'stand'; 
+      resolve(dealResult);
+      clearInterval(dealerThink);
+    } else {
+      dealerHand.push(deal(1, dealer, true));
+      setTotalVisual(dealerHand.length - 2, false);
+      console.log('Dealer chooses to hit.');
+      console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
+      dealerTotal = getDealerTotal();
+      console.log(`Dealer's new total is ${dealerTotal}`);
+    }
+  }, 1000);
+  });
+
+  promise.then(function (dealResult) {
+    switch (dealResult) {
+      case "bust":
+        console.log('Dealer has busted! You win!');
+        // newHandButton.style.visibility = 'visible';
+        newHandButton.style.display = 'block';
+        conclusion('dbust');
+        payout(2);
+        break;
+      case "blackjack":
+        console.log('Dealer has blackjack!');
+        // newHandButton.style.visibility = 'visible';
+        newHandButton.style.display = 'block';
+        break;
+      case "stand":
+        if (getPlayerTotal() > getDealerTotal()) {
+          console.log('You win!');
+          conclusion('dstandwin');
+          payout(2);
+        } else if (getPlayerTotal() < getDealerTotal()) {
+          console.log('Sorry, you lose this round. Better luck next game!');
+          conclusion('dstandlose');
+        } else {
+          console.log('Push! No money won or lost.');
+          conclusion('push');
+          payout(1);
+        }
+        // newHandButton.style.visibility = 'visible';
+        newHandButton.style.display = 'block';
+        break;
+      default:
+        console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
+    } 
+  }); 
+}
+
+
 //playGame()
 //where most game logic will take place
 //just a series of if elses given the current gameState string, run that code.
@@ -347,9 +458,17 @@ function playerTurn() {
 //part due to it checking the gameState
 async function playGame() {
   if (gameState === "player") { // if its the players turn
-    // gameButtons.style.visibility = 'visible';
-    gameButtons.style.display = 'flex';
-    let playerOutcome = playerTurn(); // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+    gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
+
+    let playerOutcome; // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+    let playerTotal = getPlayerTotal();
+    if (playerTotal > 21) { 
+      playerOutcome = "bust";
+    } else if (playerTotal === 21) {
+      playerOutcome =  "21";
+    } else {
+      playerOutcome = "choice";
+    }
     switch (playerOutcome) {
       case '21': // if the player has a non-natural 21, immediately end the turn by calling stand() for the player, because why would they hit?
         console.log("You have a 21! You stand. Dealer's turn:");
@@ -478,6 +597,11 @@ window.onload = function () {
           currentBet += currentAmountClicked;
           console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
         }
+        break;
+      case 'max':
+        console.log(money);
+        currentBet = money;
+        currentAmountClicked = currentBet;
         break;
       case 'bet':
         console.log(`Alright a total of $${currentBet} was placed.`);
