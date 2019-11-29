@@ -77,17 +77,15 @@ img {
   /* border: 1px solid red; */
 }
 #gameBoard {
-  /* background-color: green; */
   /* background-image: url('../images/greenfelt.jpg');
   background-size: 80%; */
   border-radius: 10px;
   display: flex;
-  /* align-items: center; */
+  justify-content: start;
   width: 65%;
   border: 3px solid lightcoral;
 }
 #textBoard {
-  /* background-color: yellow; */
   width: 30%;
   display: flex;
   flex-direction: column;
@@ -95,6 +93,9 @@ img {
   color: lightcoral;
   border: 3px solid lightcoral;
   border-radius: 10px;
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-top: 0px;
 }
 #textBoard > div{
   margin-left: 5px;
@@ -162,30 +163,64 @@ img {
   max-width: 300px;
 }
 
+#infoOrHowToButtons {
+  display: flex;
+  margin-left: -8px;
+  margin-top: -27px;
+  margin-right: -3px;
+}
+#howToButton {
+  opacity: 0.5;
+  margin-right: -1px;
+}
+#infoButton {
+  opacity: 1;
+  margin-left: -1px;
+}
+
 .gameButton {
   width: 100px;
   background-color: lightcoral;
   border-radius: 10px;
   text-align: center;
   padding: 8px;
-  /* margin-top: 10px; */
   color: cornsilk;
   font-size: 30px;
   font-family: 'Baloo', cursive;
   cursor: pointer;
 }
 
+.gameButton2 {
+  border-bottom: 30px solid lightcoral;
+  border-left: 30px solid transparent;
+  border-right: 30px solid transparent;
+  height: 0;
+  width: 52%;
+  text-align: center;
+  color: cornsilk;
+  font-size: 20px;
+  font-family: 'Baloo', cursive;
+  cursor: pointer;
+}
+
+.cardTotal {
+  color: lightcoral;
+  font-size: 60px;
+  margin-right: -35px;
+  margin-top: -40px;
+}
+
 .card {
   /* height: 188.4px;
   width: 135.6px; */
+  display: flex;
+  justify-content: flex-end;
   background-image: url('../images/cardback.png');
   background-size: cover;
   margin: 23px 0;
   grid-row-start: 1;
   border-radius: 9px;
 }
-
-
 /* Got the idea from stack overflow to overlap using a grid: https://stackoverflow.com/questions/43919067/make-flex-items-overlap/43919987 */
 .card:nth-child(1) { grid-column: 1 / 6; }
 .card:nth-child(2) { grid-column: 3 / 8; }
@@ -202,3 +237,17 @@ img {
 starts at 4, ends at 9..etc Each number being a grid unit defined above. cards are 5 grid units large. */
 /* 135.6px x 188.4px */
 
+@media (max-width: 1059px) {
+	body {
+		background-color: red;
+  }
+  .card:nth-child(1) { grid-column: 1 / 6; }
+  .card:nth-child(2) { grid-column: 2 / 7; }
+  .card:nth-child(3) { grid-column: 3 / 8; }
+  .card:nth-child(4) { grid-column: 4 / 9; }
+  .card:nth-child(5) { grid-column: 5 / 10; }
+  .card:nth-child(6) { grid-column: 6 / 11; }
+  .card:nth-child(7) { grid-column: 7 / 12; }
+  .card:nth-child(8) { grid-column: 8 / 13; }
+  .card:nth-child(9) { grid-column: 9 / 14; }
+}

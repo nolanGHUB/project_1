@@ -60,6 +60,9 @@ function payout(ratio) {
 
 function startBetting() {
   //Gets called at the start of every hand before cards are delt, so this is where screen cleanup from the previous game is handled.
+  gamesPlayedCounter++;
+  gamesPlayedCounterDiv.innerText = gamesPlayedCounter;
+  scoreDiv.innerText = score;
   message.innerHTML = 'PLACE YOUR BETS';
   newHandButton.style.display = 'none';
   currentBet = 0;
@@ -68,7 +71,7 @@ function startBetting() {
   dealerTotal.style.visibility = 'hidden';
   dealerTotal.innerHTML = getDealerTotal();
   dealerTotal.style.margin = `0`;
-  setTotalVisual(0, true);
+  // setTotalVisual(0, true);
   playerTotal.innerHTML = '';
   betDiv.innerText = currentBet;
   //After cleanup the only real job of this function is to make the wagering buttons 5/10/25/max visible for the player.
@@ -88,8 +91,9 @@ async function newHand() {
   deck = await localShuffleDeck(); // re-shuffles the entire deck after every hand
   gamesPlayedCounter++; // purely for stat-keeping purposes
   playerHand = deal(2, player, true); //dealing begins
+  setCardTotalVisual(player);
   dealerHand = deal(2, dealer, false);
-  setTotalVisual(0, true); //makes the cards themselves shown on screen
+  // setTotalVisual(0, true); //makes the cards themselves shown on screen
   console.log('Player, your hand is:');
   console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
   console.log(`Your total is: ${getPlayerTotal()}`);
@@ -117,11 +121,11 @@ function setTotalVisual(indentBy, toPlayer) {
   let totalMarginIndent = 61 * indentBy; 
   if (toPlayer) {
     playerTotal.innerHTML = getPlayerTotal();
-    playerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
+    // playerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
   } else {
     dealerTotal.style.visibility = 'visible';
     dealerTotal.innerHTML = getDealerTotal();
-    dealerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
+    // dealerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
   }
 }
 
@@ -190,6 +194,27 @@ function localShuffleDeck() { // Same shuffle from hi-lo week1 friday homework, 
     shuffledDeck[randomIndex] = temporaryValue; // We need to complete the 'swap', so set where the randomly chosen card came from to the bottom of the pile card
   }
   return shuffledDeck;
+}
+
+//to set the total value of the cards as a visual on screen and have it always attached to newest card
+function setCardTotalVisual(toWho) {
+  if (toWho.childElementCount > 0) { // if cards are in hand
+    for (let i = 0; i < toWho.childElementCount; i++) { //loop through those cards
+      while (toWho.children[i].firstChild) { //while each card has children (the current total)
+        toWho.children[i].removeChild(toWho.children[i].firstChild); //delete em
+      }
+    }
+  }
+ 
+  let testTotalDiv = document.createElement('div'); //create a new total child to append to newest card
+  testTotalDiv.classList.add('cardTotal'); // give the total some positioning
+  if (toWho === player) {
+    testTotalDiv.innerText = getPlayerTotal();
+  }
+  else {
+    testTotalDiv.innerText = getDealerTotal();
+  }
+  toWho.children[toWho.childElementCount - 1].appendChild(testTotalDiv);
 }
 
 //setCardImage takes 3 parameters: which card image to show, to which person (dealer/player) this card belongs and if the card should be face-up or not
@@ -284,7 +309,8 @@ function getDealerTotal() {
 //if hit button is pressed, deal another card to the player, adjust the total counter on screen & start the playerTurn() function again to check for conclusions
 function hit() {
   playerHand.push(deal(1, player, true));
-  setTotalVisual(playerHand.length - 2, true);
+  setCardTotalVisual(player);
+  // setTotalVisual(playerHand.length - 2, true);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
   playerTurn();
@@ -295,7 +321,7 @@ function stand() {
   dealerTurn();
 }
 
-//conclusion handles all the end-cases for hands and applies the appropriate message to the UI
+//conclusion handles all the end-cases for hands and applies the appropriate message to the UI Also handles score
 function conclusion(endCase) {
   switch (endCase) {
     case 'dbj':
@@ -306,21 +332,25 @@ function conclusion(endCase) {
       break;
     case 'pbj':
       message.innerHTML = 'YOU HAVE BLACKJACK!!';
+      score += 150;
       break;
     case 'dbust':
       message.innerHTML = 'DEALER BUSTS! YOU WIN!';
+      score += 100;
       break;
     case 'pbust':
       message.innerHTML = 'YOU BUST, BETTER LUCK NEXT GAME.'
       break;
     case 'both':
       message.innerHTML = 'YOU BOTH HAVE BLACKJACK! NO MONEY WON.'
+      score += 25;
       break;
     case 'dstandlose':
       message.innerHTML = 'DEALER WINS, TRY AGAIN!'
       break;
     case 'dstandwin':
       message.innerHTML = 'DEALER STANDS, YOU WIN!'
+      score += 125;
       break;
   }
   newHandButton.style.display = 'block';
@@ -369,7 +399,8 @@ function dealerTurn() {
   console.log(' ');
   console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   flipDealersCard(); //Its time to show the dealers face-down card
-  setTotalVisual(0, false); //it's also time to show the dealers card total.
+  setCardTotalVisual(dealer);
+  // setTotalVisual(0, false); //it's also time to show the dealers card total.
   gameButtons.style.display = 'none'; //Lets get rid of the players hit/stand options as they're no longer needed
   let dealerTotal = getDealerTotal(); //grab the dealers total.
   console.log(`Dealer's total is: ${dealerTotal}`);
@@ -388,7 +419,8 @@ function dealerTurn() {
       clearInterval(dealerThink);
     } else {
       dealerHand.push(deal(1, dealer, true));
-      setTotalVisual(dealerHand.length - 2, false);
+      setCardTotalVisual(dealer);
+      // setTotalVisual(dealerHand.length - 2, false);
       console.log('Dealer chooses to hit.');
       console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
       dealerTotal = getDealerTotal();
@@ -400,12 +432,14 @@ function dealerTurn() {
   promise.then(function (dealResult) { //Here is the code that is now run once the promise has been resolved. This prevents these things from running before a result is finished.
     switch (dealResult) {
       case "bust":
+        setCardTotalVisual(dealer);
         console.log('Dealer has busted! You win!');
         newHandButton.style.display = 'block';
         conclusion('dbust');
         payout(2);
         break;
       case "blackjack":
+        setCardTotalVisual(dealer);
         console.log('Dealer has blackjack!');
         newHandButton.style.display = 'block';
         break;
