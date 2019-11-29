@@ -12,8 +12,6 @@ const betDiv = document.querySelector('#currentBet');
 const gameButtons = document.querySelector('#gameOptions');
 const dealer = document.querySelector('#dealerCards');
 const player = document.querySelector('#playerCards');
-const playerTotal = document.querySelector('#playerTotal');
-const dealerTotal = document.querySelector('#dealerTotal');
 const totalWrapper = document.querySelector('#totalWrapper');
 const message = document.querySelector('#message');
 
@@ -68,18 +66,12 @@ function startBetting() {
   currentBet = 0;
   dealer.innerHTML = ' ';
   player.innerHTML = ' ';
-  dealerTotal.style.visibility = 'hidden';
-  dealerTotal.innerHTML = getDealerTotal();
-  dealerTotal.style.margin = `0`;
-  // setTotalVisual(0, true);
-  playerTotal.innerHTML = '';
   betDiv.innerText = currentBet;
   //After cleanup the only real job of this function is to make the wagering buttons 5/10/25/max visible for the player.
   wagerButtons.style.display = 'flex';
   console.log('***PLACE YOUR BETS***');
 }
 
-  
 //newHand function is called after wagering is completed when the BET button is pressed.  Makes sure the player and dealer arrays are not only empty but that the cards are put back into the deck and the entirety of the deck is re-shuffled.
 async function newHand() {
   console.log('-----------------------NEW HAND---------------------------');
@@ -91,9 +83,8 @@ async function newHand() {
   deck = await localShuffleDeck(); // re-shuffles the entire deck after every hand
   gamesPlayedCounter++; // purely for stat-keeping purposes
   playerHand = deal(2, player, true); //dealing begins
-  setCardTotalVisual(player);
+  setCardTotalVisual(player); //Sets the total visual count for the player, not dealer though we don't want the player to see the dealer's total before players turn is over!
   dealerHand = deal(2, dealer, false);
-  // setTotalVisual(0, true); //makes the cards themselves shown on screen
   console.log('Player, your hand is:');
   console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
   console.log(`Your total is: ${getPlayerTotal()}`);
@@ -115,22 +106,8 @@ function moneyCheck() {
   }
 }
 
-//setTotalVisual takes 2 parameters, and handles the total card value visual for the player and dealer.  We don't want to show the dealers total until the players turn is over
-//It also moves the total as cards are added as to not be covered up by the cards themselves. Was a more simple although less elegant solution than appending the total to the right of the newest card added. Now adjusts by style.margin
-function setTotalVisual(indentBy, toPlayer) { 
-  let totalMarginIndent = 61 * indentBy; 
-  if (toPlayer) {
-    playerTotal.innerHTML = getPlayerTotal();
-    // playerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
-  } else {
-    dealerTotal.style.visibility = 'visible';
-    dealerTotal.innerHTML = getDealerTotal();
-    // dealerTotal.style.margin = `0 0 0 ${totalMarginIndent}px`;
-  }
-}
-
+//checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
 function checkIfNatural() {
-  //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
     flipDealersCard();
     console.log(`Dealer has Blackjack! Better luck next game.`);
@@ -198,14 +175,16 @@ function localShuffleDeck() { // Same shuffle from hi-lo week1 friday homework, 
 
 //to set the total value of the cards as a visual on screen and have it always attached to newest card
 function setCardTotalVisual(toWho) {
+  //remove previous card total displays
   if (toWho.childElementCount > 0) { // if cards are in hand
     for (let i = 0; i < toWho.childElementCount; i++) { //loop through those cards
       while (toWho.children[i].firstChild) { //while each card has children (the current total)
-        toWho.children[i].removeChild(toWho.children[i].firstChild); //delete em
+        toWho.children[i].removeChild(toWho.children[i].firstChild); //delete them
       }
     }
   }
  
+  //create a new div containing the total, give it the right css and append it to the newest card of that hand
   let testTotalDiv = document.createElement('div'); //create a new total child to append to newest card
   testTotalDiv.classList.add('cardTotal'); // give the total some positioning
   if (toWho === player) {
@@ -310,7 +289,6 @@ function getDealerTotal() {
 function hit() {
   playerHand.push(deal(1, player, true));
   setCardTotalVisual(player);
-  // setTotalVisual(playerHand.length - 2, true);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
   playerTurn();
@@ -400,7 +378,6 @@ function dealerTurn() {
   console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   flipDealersCard(); //Its time to show the dealers face-down card
   setCardTotalVisual(dealer);
-  // setTotalVisual(0, false); //it's also time to show the dealers card total.
   gameButtons.style.display = 'none'; //Lets get rid of the players hit/stand options as they're no longer needed
   let dealerTotal = getDealerTotal(); //grab the dealers total.
   console.log(`Dealer's total is: ${dealerTotal}`);
@@ -420,7 +397,6 @@ function dealerTurn() {
     } else {
       dealerHand.push(deal(1, dealer, true));
       setCardTotalVisual(dealer);
-      // setTotalVisual(dealerHand.length - 2, false);
       console.log('Dealer chooses to hit.');
       console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
       dealerTotal = getDealerTotal();
