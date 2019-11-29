@@ -1,5 +1,6 @@
+//Setting variables for interactables and HTML elements to be adjusted by DOM calls.
 const gameStartButton = document.querySelector('#gameStartButton');
-const newHandButton = document.querySelector('#newHandButton');
+const newHandButton = document.querySelector('#newHandButton'); 
 const hitButton = document.querySelector('#hitButton');
 const standButton = document.querySelector('#standButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
@@ -16,20 +17,20 @@ const dealerTotal = document.querySelector('#dealerTotal');
 const totalWrapper = document.querySelector('#totalWrapper');
 const message = document.querySelector('#message');
 
-let deckId;
+//global variables
+let deckId; // Grabs the deckId from the API to be used in order to draw said cards.
 let deck; // store the full 52 card deck here. (array of card objects)
-let gameState;
-let gamesPlayedCounter;
-let money;
-let score;
-let currentBet;
-let dealerHand;
-let playerHand;
+let gamesPlayedCounter; //purely for stat purposes
+let money; //players total money
+let score; //players total score
+let currentBet; //players current bet for the current hand
+let dealerHand; //the array for the dealers cards
+let playerHand; //the array for the players cards
 //BACK OF CARD IMAGE = 226px x 314px
 
 
+//Run once per session or page refresh. Sets basic values for global counters
 async function gameInit() {
-  // await newDeck();
   gamesPlayedCounter = 0;
   money = 100;
   score = 0;
@@ -46,11 +47,11 @@ async function gameInit() {
   deckId = decksIdObj.data.deck_id;
   console.log(`Six new decks created! The deckId = ${deckId}`);
   deck = await drawCards(312);//Fills the global deck array up with the full 6 decks, and they are ALREADY SHUFFLED, not necessary to follow up with shuffleDeck.
-  startBetting();
+  startBetting(); //Start the game!
 }
 
-//All payouts are 1:1, unless player gets a blackjack, then payout is 3:2.  negative payouts accepted for losses. 0 accepted for even money/push?
-function payout(ratio) { //ratio should be either 2(for win) or 2.75(for blackjack) or 1(for even money). If you lose money has already been properly subtracted during betting phase.
+//Payout function. Takes a ratio of 1 for even money, 2 for normal payout and 2.5 for a blackjack payout and adds the appropriate winnings to the players money.
+function payout(ratio) { 
   let total = 0;
   total = currentBet * ratio;
   money += total;
@@ -58,9 +59,8 @@ function payout(ratio) { //ratio should be either 2(for win) or 2.75(for blackja
 }
 
 function startBetting() {
-  //do some screen resetting as startBetting is basically the first step of a new game.
+  //Gets called at the start of every hand before cards are delt, so this is where screen cleanup from the previous game is handled.
   message.innerHTML = 'PLACE YOUR BETS';
-  // newHandButton.style.visibility = 'hidden';
   newHandButton.style.display = 'none';
   currentBet = 0;
   dealer.innerHTML = ' ';
@@ -71,41 +71,39 @@ function startBetting() {
   setTotalVisual(0, true);
   playerTotal.innerHTML = '';
   betDiv.innerText = currentBet;
-
-  // wagerButtons.style.visibility = 'visible';
+  //After cleanup the only real job of this function is to make the wagering buttons 5/10/25/max visible for the player.
   wagerButtons.style.display = 'flex';
   console.log('***PLACE YOUR BETS***');
 }
 
   
-// I think this is where payout will be called, somehow in here.
+//newHand function is called after wagering is completed when the BET button is pressed.  Makes sure the player and dealer arrays are not only empty but that the cards are put back into the deck and the entirety of the deck is re-shuffled.
 async function newHand() {
   console.log('-----------------------NEW HAND---------------------------');
-  console.log('----------------------------------------------------------');
   dealer.innerHTML = ' ';
   player.innerHTML = ' ';
   let flushHand = [];
-  flushHand = playerHand.concat(dealerHand);
-  deck = deck.concat(flushHand);
-  deck = await localShuffleDeck(); // shuffle after every hand.
-  gamesPlayedCounter++;
-  playerHand = deal(2, player, true);
+  flushHand = playerHand.concat(dealerHand); //putting player and dealer hands together
+  deck = deck.concat(flushHand); // puts them at the end of the deck
+  deck = await localShuffleDeck(); // re-shuffles the entire deck after every hand
+  gamesPlayedCounter++; // purely for stat-keeping purposes
+  playerHand = deal(2, player, true); //dealing begins
   dealerHand = deal(2, dealer, false);
-  setTotalVisual(0, true);
+  setTotalVisual(0, true); //makes the cards themselves shown on screen
   console.log('Player, your hand is:');
   console.log(`The ${playerHand[0].value} of ${playerHand[0].suit}  &  ${playerHand[1].value} of ${playerHand[1].suit}`);
   console.log(`Your total is: ${getPlayerTotal()}`);
   console.log(' ');
   console.log(`The dealer is showing a ${dealerHand[1].value} of ${dealerHand[1].suit}`);
   console.log(' ');
-  checkIfNatural();
+  checkIfNatural(); // Before the game really begins we need to see if dealer or player have blackjack because then the hand ends. 3:2 payout for player blackjack
 }
 
-function moneyCheck() {
+//Is the check to see if player has any amount above zero to play with, otherwise game is over beause player can no longer bet.
+function moneyCheck() { 
   if (money <= 0) {
     message.innerHTML = "YOU'RE OUT OF MONEY! COME BACK AGAIN SOON!"
     gameStartButton.style.visibility = 'visible';
-    // newHandButton.style.visibility = 'hidden';
     newHandButton.style.display = 'none';
   }
   else {
@@ -113,7 +111,9 @@ function moneyCheck() {
   }
 }
 
-function setTotalVisual(indentBy, toPlayer) {
+//setTotalVisual takes 2 parameters, and handles the total card value visual for the player and dealer.  We don't want to show the dealers total until the players turn is over
+//It also moves the total as cards are added as to not be covered up by the cards themselves. Was a more simple although less elegant solution than appending the total to the right of the newest card added. Now adjusts by style.margin
+function setTotalVisual(indentBy, toPlayer) { 
   let totalMarginIndent = 61 * indentBy; 
   if (toPlayer) {
     playerTotal.innerHTML = getPlayerTotal();
@@ -127,28 +127,21 @@ function setTotalVisual(indentBy, toPlayer) {
 
 function checkIfNatural() {
   //checking if dealer has natural 21, automatically winning before players get the chance to play unless they too have natural blackjacks.
-  gameState = 'player';
   if (checkDealerNatural() === true && checkPlayerNatural() === false) {
     flipDealersCard();
     console.log(`Dealer has Blackjack! Better luck next game.`);
     conclusion("dbj");
-    // playGame();
-    // playerTurn();
   } else if (checkDealerNatural() === true && checkPlayerNatural() === true) {
     console.log('You AND the dealer both have Blackjack! No payouts.');
+    flipDealersCard();
     conclusion('both');
     payout(1);
-    // playGame();
-    // playerTurn();
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
     console.log('You have Blackjack!, You win!'); 
     flipDealersCard();
     conclusion('pbj');
-    payout(2.75);
-    // playGame();
-    // playerTurn();
+    payout(2.5);
   } else {
-    // playGame();
     playerTurn();
   }
 }
@@ -176,15 +169,14 @@ async function drawCards(numOfCards) {
   return decksObj.data.cards;
 }
 
-//USES THE API
-//Shuffles the deck without having to create a new one, and then refills the deck array with newly shuffled cards.
+//Function API call to use the API's shuffle, however to minimize API calling to just once per session, this is unused at the moment., localShuffleDeck is used instead.
 async function shuffleDeck() { //try to switch this to a local function instead.
   let shuffleObj = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/shuffle/`); //Shuffles the deck on the API side.
   deck = await drawCards(312); //re-draws all the cards and refills the deck array with the now shuffled 312 cards.
 }
 
-//Does shuffling locally to minimize api calls to once per browser refresh.
-function localShuffleDeck() { // Same shuffle from hi-lo week1
+//Does shuffling locally to minimize api calls to once per browser refresh, or player gameover state.
+function localShuffleDeck() { // Same shuffle from hi-lo week1 friday homework, works perfectly here as well.
   let currentIndex = deck.length;
   let shuffledDeck = deck.slice();
   let temporaryValue;
@@ -200,26 +192,28 @@ function localShuffleDeck() { // Same shuffle from hi-lo week1
   return shuffledDeck;
 }
 
-function setCardImage(card, toWho, faceUp) { //when only one
+//setCardImage takes 3 parameters: which card image to show, to which person (dealer/player) this card belongs and if the card should be face-up or not
+function setCardImage(card, toWho, faceUp) { 
   let cardDiv = document.createElement('div');
   cardDiv.classList.add('card');
-  if (faceUp) {
+  if (faceUp) { // because there is literally only one situation where a card is face down (dealers first 2 cards 1 up 1 down), we leave the background image set. otherwise all other cards acquire their faceup image here.
     cardDiv.style.backgroundImage = `url(${card.image})`;
   } 
   toWho.appendChild(cardDiv);
 }
 
-function flipDealersCard() {
+//This handles showing the dealers previously left face-down card, after the player's turn is over and the showdown occurs. This gets called a few times so a function was created.
+function flipDealersCard() { 
   dealer.firstElementChild.style.backgroundImage = `url(${dealerHand[0].image})`;
 }
 
+//Deal function takes 3 parameters: How many cards to deal, to whom the cards are being delt (player/dealer), and if they should be faceUp(which is passed onto the setCardImage() function.)
 function deal(numOfCards, toWho, faceUp) {
-  let cards = [];
+  let cards = []; //Creates a new empty array to use to hold the cards coming off the deck incase there is more than one.
   if (numOfCards === 1) { //check if you are only requesting one card so that you return the object and not another array.
-    // cards.push(deck.shift());
     let card = deck.shift();
     setCardImage(card, toWho, true); //always true if 1
-    return card;
+    return card; //return the singular card object.
   } else {
     cards = deck.splice(0, numOfCards);// splice returns cards starting at the first variable, number of cards to return. So if first arg is 0, returning starting at the start of the array.  If I wanted to return the final 2 cards I would use splice(-numofcards, numofcards) (negative2, 2)
     if (faceUp === false) { // it must be for the dealers 2 card opener where one must be face down, always the first delt.
@@ -233,7 +227,8 @@ function deal(numOfCards, toWho, faceUp) {
   }
 }
 
-function calculateValue(value) { // grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a number value.
+// grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a true number value which we can actually use.
+function calculateValue(value) { 
   switch (value) {
     case 'KING':
     case 'QUEEN':
@@ -250,6 +245,7 @@ function calculateValue(value) { // grabs the 'value' value from the card object
 }
 
 //returns the total value of the cards in the player's hand
+//This is trickier than one would think due to the need to account for aces Basically each hand is the highest value without going over, so if that you are over with an ace as an 11, it gets reverted to a 1 by subtracting 10 to the total vlaue, not by re-assigning how much the ace is giving to the total This way we can always leave aces as 11.
 function getPlayerTotal() { // get highest total without busting
   let total = 0; //sum
   let aceCounter = 0; //To see if we need to lower an ace's value from 11 to 1 if total is over 21
@@ -285,7 +281,7 @@ function getDealerTotal() {
   return total;
 }
 
-//if hit button is pressed
+//if hit button is pressed, deal another card to the player, adjust the total counter on screen & start the playerTurn() function again to check for conclusions
 function hit() {
   playerHand.push(deal(1, player, true));
   setTotalVisual(playerHand.length - 2, true);
@@ -294,13 +290,12 @@ function hit() {
   playerTurn();
 }
 
-//if stand button is pressed
-function stand() {  //This is a workaround function I use for a few reasons. Sometimes I call this from within playGame, how can I call playGame from within playGame? So I use this boom-a-rang function with a gameState variable to jump to where I need to in playGame().
-  // gameState = "dealer";
-  // playGame();
+//if stand button is pressed players turn is over, move onto dealerTurn()
+function stand() { 
   dealerTurn();
 }
 
+//conclusion handles all the end-cases for hands and applies the appropriate message to the UI
 function conclusion(endCase) {
   switch (endCase) {
     case 'dbj':
@@ -328,48 +323,34 @@ function conclusion(endCase) {
       message.innerHTML = 'DEALER STANDS, YOU WIN!'
       break;
   }
-  // newHandButton.style.visibility = 'visible';
   newHandButton.style.display = 'block';
 }
 
-//returns natural for 2-card blackjack, 21 or bust.  hit() and stand() do the rest of the player logic.
-function playerTurn() {
-  let playerTotal = getPlayerTotal();
-  if (playerTotal > 21) { 
-    return "bust";
-  } else if (playerTotal === 21) {
-    return "21";
-  } else {
-    return "choice";
-  }
-}
-
+//Governs the players turn after the betting has taken place. uses getPlayersTotal to grab the total. This gets called when hit is pressed
 function playerTurn() {
   gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
 
-  let playerOutcome; // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
+  let playerOutcome; 
   let playerTotal = getPlayerTotal();
-  if (playerTotal > 21) { 
+  if (playerTotal > 21) {  //Find out what the players situation is and sets it for the following conditional, if choice the player still has the option to hit or stand, otherwise player has busted or landed on a non-natural 21.
     playerOutcome = "bust";
   } else if (playerTotal === 21) {
     playerOutcome =  "21";
   } else {
     playerOutcome = "choice";
   }
-  switch (playerOutcome) {
+  switch (playerOutcome) { //conditional to handle all of the outcomes
     case '21': // if the player has a non-natural 21, immediately end the turn by calling stand() for the player, because why would they hit?
-      console.log("You have a 21! You stand. Dealer's turn:");
+      console.log("You have a 21! You stand. Dealer's turn:"); // ends players turn immediately, in no circumstance should the player hit on 21 so prevent them from doing so.
       gameButtons.style.display = 'none';
-      setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
+      setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize that their turn is actually ending without the need to press stand.
         stand();
       }, 750);
       break;
     case 'bust': // if player busts, money has already been subtracted no need to do negative payout
       console.log(`You've busted. Better luck next game!`);
       conclusion('pbust');
-      // gameButtons.style.visibility = 'hidden';
       gameButtons.style.display = 'none';
-      // newHandButton.style.visibility = 'visible';
       newHandButton.style.visibility = 'block';
       break;
     case 'choice': // if player neither gets a 21 or bust, they must still make a decision: hit or stand?
@@ -377,18 +358,20 @@ function playerTurn() {
       message.innerHTML = 'HIT OR STAND?';
       break;
     default:
-      console.log("You should never see this message - From playGame() player section.");
+      console.log("You should never see this message - From playerOutcome condition in playerTurn()");
   }
 }
 
+//Alright, the dealerTurn() function. Dealer always stands on 17 or higher. The real trick is preventing the dealer from doing all of its moves instantly and let the player get a sense of whats happening every second.
+//This is really only the situation when the player has stood and not busted and their total needs to be played against.
 function dealerTurn() {
   console.log(`Alright your final total is: ${getPlayerTotal()}`);
   console.log(' ');
   console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-  flipDealersCard();
-  setTotalVisual(0, false);
-  gameButtons.style.display = 'none';
-  let dealerTotal = getDealerTotal();
+  flipDealersCard(); //Its time to show the dealers face-down card
+  setTotalVisual(0, false); //it's also time to show the dealers card total.
+  gameButtons.style.display = 'none'; //Lets get rid of the players hit/stand options as they're no longer needed
+  let dealerTotal = getDealerTotal(); //grab the dealers total.
   console.log(`Dealer's total is: ${dealerTotal}`);
   let dealResult = "";
 
@@ -414,18 +397,16 @@ function dealerTurn() {
   }, 1000);
   });
 
-  promise.then(function (dealResult) {
+  promise.then(function (dealResult) { //Here is the code that is now run once the promise has been resolved. This prevents these things from running before a result is finished.
     switch (dealResult) {
       case "bust":
         console.log('Dealer has busted! You win!');
-        // newHandButton.style.visibility = 'visible';
         newHandButton.style.display = 'block';
         conclusion('dbust');
         payout(2);
         break;
       case "blackjack":
         console.log('Dealer has blackjack!');
-        // newHandButton.style.visibility = 'visible';
         newHandButton.style.display = 'block';
         break;
       case "stand":
@@ -441,7 +422,6 @@ function dealerTurn() {
           conclusion('push');
           payout(1);
         }
-        // newHandButton.style.visibility = 'visible';
         newHandButton.style.display = 'block';
         break;
       default:
@@ -450,121 +430,7 @@ function dealerTurn() {
   }); 
 }
 
-
-//playGame()
-//where most game logic will take place
-//just a series of if elses given the current gameState string, run that code.
-//all gameState variable changes will occur in other functions, then recall playGame() and playGame will jump to the appropriate
-//part due to it checking the gameState
-async function playGame() {
-  if (gameState === "player") { // if its the players turn
-    gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
-
-    let playerOutcome; // natural, 21, bust  -- if stand it automatically goes to the dealers turn and never enters this loop.
-    let playerTotal = getPlayerTotal();
-    if (playerTotal > 21) { 
-      playerOutcome = "bust";
-    } else if (playerTotal === 21) {
-      playerOutcome =  "21";
-    } else {
-      playerOutcome = "choice";
-    }
-    switch (playerOutcome) {
-      case '21': // if the player has a non-natural 21, immediately end the turn by calling stand() for the player, because why would they hit?
-        console.log("You have a 21! You stand. Dealer's turn:");
-        gameButtons.style.display = 'none';
-        setTimeout(function () { //giving a 1 second pause before jumping to the dealers turn (which happens so instantaneously) so the player can realize what happened before its over.
-          stand();
-        }, 750);
-        break;
-      case 'bust': // if player busts, money has already been subtracted no need to do negative payout
-        console.log(`You've busted. Better luck next game!`);
-        conclusion('pbust');
-        // gameButtons.style.visibility = 'hidden';
-        gameButtons.style.display = 'none';
-        // newHandButton.style.visibility = 'visible';
-        newHandButton.style.visibility = 'block';
-        break;
-      case 'choice': // if player neither gets a 21 or bust, they must still make a decision: hit or stand?
-        console.log('Do you choose to Hit or Stand?');
-        message.innerHTML = 'HIT OR STAND?';
-        break;
-      default:
-        console.log("You should never see this message - From playGame() player section.");
-    }
-  } else if (gameState === "dealer") { // if dealers turn
-      console.log(`Alright your final total is: ${getPlayerTotal()}`);
-      console.log(' ');
-      console.log(`Dealer's cards are ${dealerHand[0].value} of ${dealerHand[0].suit}  &  ${dealerHand[1].value} of ${dealerHand[1].suit}`);
-      flipDealersCard();
-      setTotalVisual(0, false);
-    // gameButtons.style.visibility = 'hidden';
-    gameButtons.style.display = 'none';
-      
-      let dealerTotal = getDealerTotal();
-      console.log(`Dealer's total is: ${dealerTotal}`);
-      let dealResult = "";
-
-      let promise = new Promise(function (resolve) { // if we dont use a promise here the game will keep going without the dealers turn being finished and the result will be undefined.
-        let dealerThink = setInterval(function () { // use setInterval to give the dealer a second delaye between each move so it doesn't all happen at once.
-        if (dealerTotal > 21) {//if dealer bust
-          dealResult = 'bust'; 
-          resolve(dealResult); //resolve is what is "returned" to the promise.then, so we are giving it the result that takes a second or more so that the promise knows to wait for this before using the value later on before its undefined.
-          clearInterval(dealerThink);
-        } else if (dealerTotal >= 17) { //dealer always stands on 17 or higher.
-          console.log('Dealer Stands');
-          dealResult = 'stand'; 
-          resolve(dealResult);
-          clearInterval(dealerThink);
-        } else {
-          dealerHand.push(deal(1, dealer, true));
-          setTotalVisual(dealerHand.length - 2, false);
-          console.log('Dealer chooses to hit.');
-          console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
-          dealerTotal = getDealerTotal();
-          console.log(`Dealer's new total is ${dealerTotal}`);
-        }
-      }, 1000);
-      });
-
-    promise.then(function (dealResult) {
-      switch (dealResult) {
-        case "bust":
-          console.log('Dealer has busted! You win!');
-          // newHandButton.style.visibility = 'visible';
-          newHandButton.style.display = 'block';
-          conclusion('dbust');
-          payout(2);
-          break;
-        case "blackjack":
-          console.log('Dealer has blackjack!');
-          // newHandButton.style.visibility = 'visible';
-          newHandButton.style.display = 'block';
-          break;
-        case "stand":
-          if (getPlayerTotal() > getDealerTotal()) {
-            console.log('You win!');
-            conclusion('dstandwin');
-            payout(2);
-          } else if (getPlayerTotal() < getDealerTotal()) {
-            console.log('Sorry, you lose this round. Better luck next game!');
-            conclusion('dstandlose');
-          } else {
-            console.log('Push! No money won or lost.');
-            conclusion('push');
-            payout(1);
-          }
-          // newHandButton.style.visibility = 'visible';
-          newHandButton.style.display = 'block';
-          break;
-        default:
-          console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
-      } 
-    }); 
-  }  
-}
-
-
+//Event Listeners for the buttons.
 window.onload = function () {
   
   gameStartButton.addEventListener('click', gameInit);
@@ -572,19 +438,19 @@ window.onload = function () {
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
 
-  //wagering
-  wagerButtons.addEventListener('click', async function (e) {
+  //wagering could be done in its own function up top but in reality its just large conditional why not handle it inside an anonymous function inside the event listener.
+  wagerButtons.addEventListener('click', async function (e) { //On all of the div so we dont have to set a new listener on each button individually.
     const betAmount = e.target.id;
     let currentAmountClicked = 0;
     switch (betAmount) {
-      case '5':
+      case '5': //if $5 was placed
         currentAmountClicked = 5;
-        if ((currentAmountClicked + currentBet <= money)) {
+        if ((currentAmountClicked + currentBet <= money)) { // only allow if player has enough for this bet else do nothing
           currentBet += currentAmountClicked;
           console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
         }
         break;
-      case '10':
+      case '10': //or perhaps $10..
         currentAmountClicked = 10;
         if ((currentAmountClicked + currentBet <= money)) {
           currentBet += currentAmountClicked;
@@ -598,12 +464,11 @@ window.onload = function () {
           console.log(`$${betAmount} placed. Current bet total: $${currentBet}`);
         }
         break;
-      case 'max':
-        console.log(money);
+      case 'max': //This was needed because of the 3:2 blackjack payout.  Incase the player wants to max bet, OR if the player is left with some change after a 3:2 payout has left them with uneven chips.
         currentBet = money;
         currentAmountClicked = currentBet;
         break;
-      case 'bet':
+      case 'bet': //In order to set in the bet. Also allows a $0 dollar bet, not sure if a min of 5 should be forced or not?
         console.log(`Alright a total of $${currentBet} was placed.`);
         money -= currentBet;
         moneyDiv.innerText = money;
