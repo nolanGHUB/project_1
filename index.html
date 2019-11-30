@@ -7,7 +7,7 @@
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script defer src="js/mainGame.js" charset="utf-8"></script>
   <link rel="stylesheet" href="css/style.css" type="text/css"></script>
-  <link href="https://fonts.googleapis.com/css?family=Baloo|Forum|Modak&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,700&display=swap" rel="stylesheet">
   <title>Blackjack - By Nolan</title>
 </head>
 <body>
@@ -28,39 +28,49 @@
             <div class="card"></div>
           </div>
         </div>
-        <div id="totalWrapper">
-          <div id="dealerTotal">0</div>
-          <div id="playerTotal"></div>
-        </div>
       </div>
       <div id="textBoard">
         <div id="textWrapper">
           <div id="infoOrHowToButtons">
-            <div class="gameButton2" id="infoButton">I</div>
-            <div class="gameButton2" id="howToButton">R</div>
+            <div class="gameButton2" id="infoButton">Info</div>
+            <div class="gameButton2" id="howToButton">Rules</div>
           </div>
-          <div id="scoreWrapper">
-            <div>Score: <span id="score"></span></div>
+          <div id="rules">
+            <div>Objective:</div>
+            <p>Your goal is to attempt to beat the dealer by getting a count as close to 21 as possible, without going over 21.</p>
+            <div>Values:</div>
+            <p>Face cards are worth 10, Aces can be worth 11 or 1, if your total hand value is over 21 and you have any aces their values will be adjusted accordingly in order to keep you at your highest total while still under 21.</p>
+            <div>Outcomes & Order:</div>
+            <p>If the initial deal consists of 21, an Ace + any face card or a 10, than that is a Blackjack or natural 21.  If either the dealer or the player is delt a Blackjack then that hand is automatically a winner and ends the round. If the player nor the dealer have Blackjack, then it will begin the players turn. During the players turn you will have the option to Hit or Stand. Hitting will let you receive an additional card to add to your total. If you as the player go over 21 this is known as a "Bust" and you immediately lose. Standing ends your turn and begins the Dealer's turn. If the dealer has 16 or less it will Hit, otherwise the dealer will stand. Whomever's total at the end of the round is closest without going over 21 wins.</p>
+            <div>Payouts:</div>
+            <p>The player places a wager before the initial cards are delt, no further betting happens until the next round.  Blackjack pays out 3:2, the rest of the outcomes pay out 1:1. Run out of money and your game session is over! Good luck!</p>
           </div>
-          <div id="gameCounterWrapper">
-            <div>Games Played: <span id="gamesPlayed"></span></div>
-          </div>
-          <div id="cashWrapper">
-            <div>Cash: $<span id="cash"></span></div>
-          </div>
-          <div id="currentBetWrapper">
-            <div>Current Bet: $<span id="currentBet"></span></div>
-          </div>
-          <div id="messageWrapper">
-          <span id="message">PRESS START TO BEGIN!</span>
-          </div>
-        </div>
-        <div id="startHandWrapper">
-          <div class="gameButton" id="gameStartButton">
-              Start
-          </div>
-          <div class="gameButton" id="newHandButton">
-              Deal
+          <div id="infoWrapper">
+            <div id="information">
+              <div id="scoreWrapper">
+                <div>Score: <span class="valueStyle" id="score"></span></div>
+              </div>
+              <div id="gameCounterWrapper">
+                <div>Games Played: <span class="valueStyle" id="gamesPlayed"></span></div>
+              </div>
+              <div id="cashWrapper">
+                <div>Cash: $<span class="valueStyle" id="cash"></span></div>
+              </div>
+              <div id="currentBetWrapper">
+                <div>Current Bet: $<span class="valueStyle" id="currentBet"></span></div>
+              </div>
+              <div id="messageWrapper">
+              <span id="message">PRESS START TO BEGIN!</span>
+              </div>
+            </div>
+            <div id="startHandWrapper">
+              <div class="gameButton" id="gameStartButton">
+                  Start
+              </div>
+              <div class="gameButton" id="newHandButton">
+                  Deal
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -77,6 +87,7 @@
             <div class="gameButton" id="max">MAX</div>
             <div class="gameButton" id="bet">BET</div>
         </div>
+        <div id="paddingOptions"></div>
     </div>
   </div>
 </body>

@@ -3,6 +3,9 @@ const gameStartButton = document.querySelector('#gameStartButton');
 const newHandButton = document.querySelector('#newHandButton'); 
 const hitButton = document.querySelector('#hitButton');
 const standButton = document.querySelector('#standButton');
+const infoOrHowToButtons = document.querySelector('#infoOrHowToButtons');
+const infoButton = document.querySelector('#infoButton');
+const howToButton = document.querySelector('#howToButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
 const wagerButtons = document.querySelector('#wagerOptions');
 const moneyDiv = document.querySelector('#cash');
@@ -14,6 +17,8 @@ const dealer = document.querySelector('#dealerCards');
 const player = document.querySelector('#playerCards');
 const totalWrapper = document.querySelector('#totalWrapper');
 const message = document.querySelector('#message');
+const rules = document.querySelector('#rules');
+const info = document.querySelector('#information');
 
 //global variables
 let deckId; // Grabs the deckId from the API to be used in order to draw said cards.
@@ -299,6 +304,22 @@ function stand() {
   dealerTurn();
 }
 
+function displayFlip() {
+  if (rules.style.display === 'block') {
+    // info.style.display = 'block';
+    info.style.visibility = 'visible';
+    rules.style.display = 'none';
+    howToButton.style.opacity = '0.5';
+    infoButton.style.opacity = '1';
+  } else {
+    // info.style.display = 'none';
+    info.style.visibility = 'hidden';
+    rules.style.display = 'block';
+    howToButton.style.opacity = '1';
+    infoButton.style.opacity = '0.5';
+  }
+}
+
 //conclusion handles all the end-cases for hands and applies the appropriate message to the UI Also handles score
 function conclusion(endCase) {
   switch (endCase) {
@@ -447,9 +468,10 @@ window.onload = function () {
   newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
+  infoOrHowToButtons.addEventListener('click', displayFlip);
 
   //wagering could be done in its own function up top but in reality its just large conditional why not handle it inside an anonymous function inside the event listener.
-  wagerButtons.addEventListener('click', async function (e) { //On all of the div so we dont have to set a new listener on each button individually.
+  wagerButtons.addEventListener('click', function (e) { //On all of the div so we dont have to set a new listener on each button individually.
     const betAmount = e.target.id;
     let currentAmountClicked = 0;
     switch (betAmount) {

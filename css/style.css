@@ -1,17 +1,19 @@
 /* font-family: 'Forum', cursive;
 font-family: 'Modak', cursive;
-font-family: 'Baloo', cursive; */
+font-family: 'Baloo', cursive; 
+font-family: 'Poppins', sans-serif;*/
+
+/* #2B4A4D - font header color
+#96AF94 - font non header color
+#DEFBDD - body background
+#4C8286 - button background & num value color
+#C4DCC3 - gameboard background
+#DEFBDD - button text color */
 
 body {
-  background-color: rgb(255, 220, 168);
-  font-family: 'Baloo', cursive;
-  /* background-image: url('../images/greenfelt.jpg');
-  background-size: 55%; */
+  background-color: #DEFBDD;
+  font-family: 'Poppins', sans-serif;
   min-height: 95vh;
-  margin: 0 auto;
-}
-img {
-  filter: drop-shadow(0 0 0.75rem rgb(215, 25, 25));
 }
 
 #bodyWrapper {
@@ -19,20 +21,22 @@ img {
   flex-direction: column;
   width: 70%;
   margin: 0 auto;
-  /* border: 1px solid black; */
 }
 
 #topWrapper {
   /* font-family: 'Forum', cursive; */
   /* font-family: 'Baloo', cursive; */
-  color: lightcoral;
-  font-weight: 600;
+  color: #2B4A4D;	
+  font-family: Poppins;	
+  font-size: 48px;	
+  font-weight: bold;	
+  letter-spacing: 2.07px;	
+  line-height: 72px;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
   height: 15%;
-  font-size: 75px;
-  /* border: 1px solid red; */
+  border: 1px solid red;
 }
 #topTitle {
   /* border: 1px solid red; */
@@ -63,8 +67,12 @@ img {
   margin: 
 } */
 #message {
-  font-size: 36px;
-  padding-top: 20px;
+  color: #4C8286;	
+  font-family: Poppins;	
+  font-size: 24px;	
+  font-weight: bold;	
+  letter-spacing: 4px;	
+  line-height: 35px;
 }
 
 #mainWrapper {
@@ -74,32 +82,39 @@ img {
   flex-direction: row;
   justify-content: space-around;
   height: 40%;
-  /* border: 1px solid red; */
+  border: 1px solid red;
 }
 #gameBoard {
-  /* background-image: url('../images/greenfelt.jpg');
-  background-size: 80%; */
+  background-color: #C4DCC3;
   border-radius: 10px;
   display: flex;
   justify-content: start;
   width: 65%;
-  border: 3px solid lightcoral;
 }
 #textBoard {
   width: 30%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   color: lightcoral;
-  border: 3px solid lightcoral;
+  border: 1px solid red;
   border-radius: 10px;
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-top: 0px;
 }
 #textBoard > div{
   margin-left: 5px;
   font-size: 30px;
+}
+#infoWrapper {
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+#information {
+  color: #96AF94;
+  font-family: Poppins;
+  font-size: 16px;	
+  font-weight: 500;	
+  letter-spacing: 3.56px;	
+  line-height: 25px;
 }
 
 #newHandButton {
@@ -108,39 +123,29 @@ img {
 #optionWrapper {
   /* background-color: purple; */
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-around;
   height: 15%;
   margin-top: 15px;
+  border: 1px solid red;
 }
 #gameOptions {
   display: none;
   flex-direction: row;
   justify-content: space-around;
-  width: 100%;
+  width: 65%;
+  /* INSTEAD OF THIS SET SOME SIDE MARGINS AND USE SPACE BETWEEN IN BODY WRAPPER PROBABLY. STOP THIS ASIDE % MADNESS */
 }
 #wagerOptions {
   display: none;
   flex-direction: row;
-  width: 100%;
+  width: 65%;
   justify-content: space-around;
 }
-#totalWrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  color: lightcoral;
-  font-size: 40px;
-  font-weight: 800;
-  margin-left: 0px;
+#paddingOptions {
+  width: 30%;
 }
-#dealerTotal {
-  visibility: hidden;
-  margin-left: 21px;
-}
-#playerTotal {
-  margin-left: 0px;
-}
+
 #cardWrapper {
   display: flex;
   flex-direction: column;
@@ -165,42 +170,73 @@ img {
 
 #infoOrHowToButtons {
   display: flex;
-  margin-left: -8px;
-  margin-top: -27px;
-  margin-right: -3px;
+  justify-content: space-around;
 }
 #howToButton {
   opacity: 0.5;
-  margin-right: -1px;
 }
 #infoButton {
   opacity: 1;
-  margin-left: -1px;
+}
+
+#rules {
+  display: none;
+}
+#rules > p {
+  color: black;
+  display: block;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  margin-left: 0;
+  margin-right: 0;
+  font-size: 16px;
 }
 
 .gameButton {
   width: 100px;
-  background-color: lightcoral;
-  border-radius: 10px;
+  background-color: #4C8286;
+  border-radius: 40px;
   text-align: center;
   padding: 8px;
-  color: cornsilk;
-  font-size: 30px;
-  font-family: 'Baloo', cursive;
+  color: #DEFBDD;
+  font-family: Poppins;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  line-height: 35px;
   cursor: pointer;
 }
 
 .gameButton2 {
-  border-bottom: 30px solid lightcoral;
+  /* border-bottom: 30px solid lightcoral;
   border-left: 30px solid transparent;
-  border-right: 30px solid transparent;
-  height: 0;
-  width: 52%;
+  border-right: 30px solid transparent; */
+  margin-top: -40px;
+  background-color: #4C8286;
+  padding: 8px;
+  padding-top: 2px;
+  padding-bottom: 4px;
+  border-radius: 10px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 38%;
   text-align: center;
-  color: cornsilk;
-  font-size: 20px;
-  font-family: 'Baloo', cursive;
+  color: #DEFBDD;
+  font-family: Poppins;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 4px;
+  line-height: 35px;
   cursor: pointer;
+}
+
+.valueStyle {
+  color: #4C8286;	
+  font-family: Poppins;	
+  font-size: 36px;	
+  font-weight: bold;	
+  letter-spacing: 8px;	
+  line-height: 36px;
 }
 
 .cardTotal {
@@ -215,14 +251,14 @@ img {
   width: 135.6px; */
   display: flex;
   justify-content: flex-end;
-  background-image: url('../images/cardback.png');
+  background-image: url('../images/cardback_green.png');
   background-size: cover;
   margin: 23px 0;
   grid-row-start: 1;
   border-radius: 9px;
 }
 /* Got the idea from stack overflow to overlap using a grid: https://stackoverflow.com/questions/43919067/make-flex-items-overlap/43919987 */
-.card:nth-child(1) { grid-column: 1 / 6; }
+/* .card:nth-child(1) { grid-column: 1 / 6; }
 .card:nth-child(2) { grid-column: 3 / 8; }
 .card:nth-child(3) { grid-column: 5 / 10; }
 .card:nth-child(4) { grid-column: 7 / 12; }
@@ -230,14 +266,23 @@ img {
 .card:nth-child(6) { grid-column: 11 / 16; }
 .card:nth-child(7) { grid-column: 13 / 18; }
 .card:nth-child(8) { grid-column: 15 / 20; }
-.card:nth-child(9) { grid-column: 17 / 22; }
+.card:nth-child(9) { grid-column: 17 / 22; } */
+.card:nth-child(1) { grid-column: 1 / 6; }
+.card:nth-child(2) { grid-column: 2 / 7; }
+.card:nth-child(3) { grid-column: 3 / 8; }
+.card:nth-child(4) { grid-column: 4 / 9; }
+.card:nth-child(5) { grid-column: 5 / 10; }
+.card:nth-child(6) { grid-column: 6 / 11; }
+.card:nth-child(7) { grid-column: 7 / 12; }
+.card:nth-child(8) { grid-column: 8 / 13; }
+.card:nth-child(9) { grid-column: 9 / 14; }
 
 
 /* starts at 1, ends at 6
 starts at 4, ends at 9..etc Each number being a grid unit defined above. cards are 5 grid units large. */
 /* 135.6px x 188.4px */
 
-@media (max-width: 1059px) {
+@media (max-width: 1023px) {
 	body {
 		background-color: red;
   }
