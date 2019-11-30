@@ -144,8 +144,8 @@ body {
 #gameOptions {
   display: none;
   justify-content: space-around;
-  width: 55%;
-  min-width: 500px;
+  width: 700px;
+  /* min-width: 500px; */
   /* INSTEAD OF THIS SET SOME SIDE MARGINS AND USE SPACE BETWEEN IN BODY WRAPPER PROBABLY. STOP THIS ASIDE % MADNESS */
 }
 #wagerOptions {
@@ -320,9 +320,9 @@ starts at 4, ends at 9..etc Each number being a grid unit defined above. cards a
     margin: 0;
     width: 100%;
   }
-  #optionWrapper {
+  /* #optionWrapper {
     margin: 0 auto;
-  }
+  } */
   #wagerOptions {
     flex-wrap: wrap;
     flex-direction: row;

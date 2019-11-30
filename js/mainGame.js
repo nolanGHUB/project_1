@@ -125,6 +125,9 @@ function checkIfNatural() {
     conclusion('pbj');
     payout(2.5);
   } else {
+    if (money >= (currentBet * 2)) {
+      doubleButton.style.display = 'flex';
+    }
     playerTurn();
   }
 }
@@ -293,11 +296,13 @@ function hit() {
   setCardTotalVisual(player);
   console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
   console.log(`Your new total is ${getPlayerTotal()}`);
+  doubleButton.style.display = 'none';
   playerTurn();
 }
 
 //if stand button is pressed players turn is over, move onto dealerTurn()
 function stand() { 
+  doubleButton.style.display = 'none';
   dealerTurn();
 }
 
@@ -358,9 +363,6 @@ function conclusion(endCase) {
 //Governs the players turn after the betting has taken place. uses getPlayersTotal to grab the total. This gets called when hit is pressed
 function playerTurn() {
   gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
-  if (money >= (currentBet * 2)) {
-    doubleButton.style.display = 'flex';
-  }
 
   let playerOutcome; 
   let playerTotal = getPlayerTotal();
