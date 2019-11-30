@@ -468,7 +468,7 @@ window.onload = function () {
   newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
-  infoOrHowToButtons.addEventListener('click', displayFlip);
+  // infoOrHowToButtons.addEventListener('click', displayFlip);
 
   //wagering could be done in its own function up top but in reality its just large conditional why not handle it inside an anonymous function inside the event listener.
   wagerButtons.addEventListener('click', function (e) { //On all of the div so we dont have to set a new listener on each button individually.
