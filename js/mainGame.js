@@ -16,6 +16,7 @@ const totalWrapper = document.querySelector('#totalWrapper');
 const message = document.querySelector('#message');
 const rules = document.querySelector('#rules');
 const info = document.querySelector('#information');
+const doubleButton = document.querySelector('#doubleButton');
 
 //global variables
 let deckId; // Grabs the deckId from the API to be used in order to draw said cards.
@@ -300,21 +301,24 @@ function stand() {
   dealerTurn();
 }
 
-function displayFlip() {
-  if (rules.style.display === 'block') {
-    // info.style.display = 'block';
-    info.style.visibility = 'visible';
-    rules.style.display = 'none';
-    howToButton.style.opacity = '0.5';
-    infoButton.style.opacity = '1';
+//Doubling effectively deals 1 more, doubles your bet and forces you to stand.
+function double() {
+  playerHand.push(deal(1, player, true)); //deal one more card
+  setCardTotalVisual(player);
+  money -= currentBet; // set the variable
+  currentBet *= 2;
+  moneyDiv.innerText = money; //set the visuals to represent the updated variables
+  betDiv.innerText = money; 
+  let playerTotal = getPlayerTotal(); //need to do bust check
+  doubleButton.style.display = 'none';
+  gameButtons.style.display = 'none';
+  if (playerTotal > 21) {
+    conclusion('pbust');
   } else {
-    // info.style.display = 'none';
-    info.style.visibility = 'hidden';
-    rules.style.display = 'block';
-    howToButton.style.opacity = '1';
-    infoButton.style.opacity = '0.5';
+    dealerTurn();
   }
 }
+
 
 //conclusion handles all the end-cases for hands and applies the appropriate message to the UI Also handles score
 function conclusion(endCase) {
@@ -354,6 +358,9 @@ function conclusion(endCase) {
 //Governs the players turn after the betting has taken place. uses getPlayersTotal to grab the total. This gets called when hit is pressed
 function playerTurn() {
   gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
+  if (money >= (currentBet * 2)) {
+    doubleButton.style.display = 'flex';
+  }
 
   let playerOutcome; 
   let playerTotal = getPlayerTotal();
@@ -457,6 +464,8 @@ function dealerTurn() {
   }); 
 }
 
+
+
 //adds an animation to the incoming target particularly in this case adds the inner as text to where you are clicking for a little pizzaz.
 function addAnimationRaiseUpFadeOut(inner, target) {
   let tempText = document.createElement('div');
@@ -474,7 +483,7 @@ window.onload = function () {
   newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
-  // infoOrHowToButtons.addEventListener('click', displayFlip);
+  doubleButton.addEventListener('click', double);
 
   //wagering could be done in its own function up top but in reality its just large conditional why not handle it inside an anonymous function inside the event listener.
   wagerButtons.addEventListener('click', function (e) { //On all of the div so we dont have to set a new listener on each button individually.

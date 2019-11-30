@@ -27,7 +27,6 @@ body {
 #topTitle {
   text-align: center;
   color: #2B4A4D;	
-  font-family: Poppins;	
   font-size: 48px;	
   font-weight: bold;	
   letter-spacing: 2.07px;	
@@ -50,7 +49,6 @@ body {
 }
 #message {
   color: #4C8286;	
-  font-family: Poppins;	
   font-size: 24px;	
   font-weight: bold;	
   letter-spacing: 4px;	
@@ -99,7 +97,6 @@ body {
   flex-direction: row;
   justify-content: space-between;
   color: #96AF94;
-  font-family: Poppins;
   font-size: 16px;	
   font-weight: 500;	
   letter-spacing: 3px;	
@@ -118,6 +115,20 @@ body {
 }
 
 #newHandButton {
+  display: none;
+  margin-right: 30px;
+  padding: 20px 45px;
+}
+#doubleButton {
+  display: none;
+}
+#insuranceButton {
+  display: none;
+  margin-right: 30px;
+  margin-top: 5px;
+  padding: 20px 45px;
+}
+#splitButton {
   display: none;
   margin-right: 30px;
   margin-top: 5px;
@@ -172,7 +183,6 @@ body {
 }
 
 #rules {
-  margin: 20px;
   margin-top: 40px;
   display: block;
   color: #4C8286;
@@ -180,10 +190,7 @@ body {
 #rules > p {
   color: #96AF94;
   display: block;
-  margin-top: 1em;
-  margin-bottom: 1em;
-  margin-left: 0;
-  margin-right: 0;
+  margin: 0 0 16px 0;
   font-size: 16px;
 }
 
@@ -217,7 +224,6 @@ body {
   text-align: center;
   padding: 10px 40px;
   color: #DEFBDD;
-  font-family: Poppins;
   font-size: 24px;
   font-weight: bold;
   letter-spacing: 4px;
@@ -235,7 +241,6 @@ body {
   text-align: center;
   padding: 10px 50px;
   color: #DEFBDD;
-  font-family: Poppins;
   font-size: 24px;
   font-weight: bold;
   letter-spacing: 4px;
@@ -251,7 +256,6 @@ body {
 
 .valueStyle {
   color: #4C8286;	
-  font-family: Poppins;	
   font-size: 36px;	
   font-weight: bold;	
   letter-spacing: 4px;	
@@ -260,7 +264,6 @@ body {
 
 .cardTotal {
   color: #4C8286;
-  font-family: Poppins;	
   font-size: 48px;	
   font-weight: bold;	
   letter-spacing: 2px;	
@@ -268,8 +271,10 @@ body {
   text-align: center;
   width: 45px;
   height: 45px;
-  margin-right: -30px;
-  margin-top: -28px;
+  margin-right: -46px;
+  margin-top: -16px;
+  /* margin-right: -30px;
+  margin-top: -28px; */
 }
 
 .card {
