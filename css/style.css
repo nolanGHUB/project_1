@@ -46,6 +46,7 @@ body {
 }
 #messageWrapper {
   height: 70px;
+  display: flex;
 }
 #message {
   color: #4C8286;	
@@ -54,6 +55,8 @@ body {
   font-weight: bold;	
   letter-spacing: 4px;	
   line-height: 35px;
+  width: 410px;
+  max-width: 410px;
 }
 
 #mainWrapper {
@@ -114,9 +117,11 @@ body {
   justify-content: space-between;
 }
 
-
 #newHandButton {
   display: none;
+  margin-right: 30px;
+  margin-top: 5px;
+  padding: 20px 45px;
 }
 #optionWrapper {
   /* background-color: purple; */
@@ -182,11 +187,35 @@ body {
   font-size: 16px;
 }
 
+@keyframes riseUpFadeOut {
+  0% {
+    position: relative;
+    bottom: 4rem;
+    opacity: 0;
+  }
+  99% {
+    position: relative;
+    bottom: 8rem;
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animateButtonText {
+  font-size: 24px;
+  opacity: 0;
+  color: #2B4A4D;
+  animation-name: riseUpFadeOut;
+  animation-duration: 1s;
+}
+
 .gameButton {
   background-color: #4C8286;
   border-radius: 40px;
   text-align: center;
-  padding: 20px 40px;
+  padding: 10px 40px;
   color: #DEFBDD;
   font-family: Poppins;
   font-size: 24px;
@@ -195,7 +224,11 @@ body {
   line-height: 35px;
   cursor: pointer;
 }
-
+.gameButton:hover {background-color: #2B4A4D;}
+.gameButton:active {
+  background-color: #2B4A4D;
+  transform: translateY(2px);
+}
 .gameButton2 {
   background-color: #4C8286;
   border-radius: 40px;
@@ -208,6 +241,12 @@ body {
   letter-spacing: 4px;
   line-height: 35px;
   cursor: pointer;
+  max-height: 35px;
+}
+.gameButton2:hover {background-color: #2B4A4D;}
+.gameButton2:active {
+  background-color: #2B4A4D;
+  transform: translateY(2px);
 }
 
 .valueStyle {

@@ -3,9 +3,6 @@ const gameStartButton = document.querySelector('#gameStartButton');
 const newHandButton = document.querySelector('#newHandButton'); 
 const hitButton = document.querySelector('#hitButton');
 const standButton = document.querySelector('#standButton');
-const infoOrHowToButtons = document.querySelector('#infoOrHowToButtons');
-const infoButton = document.querySelector('#infoButton');
-const howToButton = document.querySelector('#howToButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
 const wagerButtons = document.querySelector('#wagerOptions');
 const moneyDiv = document.querySelector('#cash');
@@ -86,7 +83,6 @@ async function newHand() {
   flushHand = playerHand.concat(dealerHand); //putting player and dealer hands together
   deck = deck.concat(flushHand); // puts them at the end of the deck
   deck = await localShuffleDeck(); // re-shuffles the entire deck after every hand
-  gamesPlayedCounter++; // purely for stat-keeping purposes
   playerHand = deal(2, player, true); //dealing begins
   setCardTotalVisual(player); //Sets the total visual count for the player, not dealer though we don't want the player to see the dealer's total before players turn is over!
   dealerHand = deal(2, dealer, false);
@@ -461,9 +457,19 @@ function dealerTurn() {
   }); 
 }
 
+//adds an animation to the incoming target particularly in this case adds the inner as text to where you are clicking for a little pizzaz.
+function addAnimationRaiseUpFadeOut(inner, target) {
+  let tempText = document.createElement('div');
+  tempText.innerHTML = inner;
+  tempText.classList.add('animateButtonText');
+  target.appendChild(tempText);
+  setTimeout(function() { tempText.remove(); }, 995); //You have to remove it once the animation is complete otherwise you end up just adding a ton of divs which will eventually bog down the DOM/memory I assume.
+}
+
 //Event Listeners for the buttons.
 window.onload = function () {
   
+  //button listeners
   gameStartButton.addEventListener('click', gameInit);
   newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
@@ -476,6 +482,7 @@ window.onload = function () {
     let currentAmountClicked = 0;
     switch (betAmount) {
       case '5': //if $5 was placed
+        addAnimationRaiseUpFadeOut('$5', e.target);
         currentAmountClicked = 5;
         if ((currentAmountClicked + currentBet <= money)) { // only allow if player has enough for this bet else do nothing
           currentBet += currentAmountClicked;
@@ -483,6 +490,7 @@ window.onload = function () {
         }
         break;
       case '10': //or perhaps $10..
+        addAnimationRaiseUpFadeOut('$10', e.target);
         currentAmountClicked = 10;
         if ((currentAmountClicked + currentBet <= money)) {
           currentBet += currentAmountClicked;
@@ -490,6 +498,7 @@ window.onload = function () {
         }
         break;
       case '25':
+        addAnimationRaiseUpFadeOut('$25', e.target);
         currentAmountClicked = 25;
         if ((currentAmountClicked + currentBet <= money)) {
           currentBet += currentAmountClicked;
