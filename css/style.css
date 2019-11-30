@@ -49,6 +49,7 @@ body {
 #textWrapper {
   display: flex;
   flex-direction: column;
+  margin-left: 5px;
 }
 
 #startHandWrapper {
@@ -86,21 +87,15 @@ body {
 }
 #gameBoard {
   background-color: #C4DCC3;
-  border-radius: 10px;
+  border-radius: 40px;
   display: flex;
   justify-content: start;
-  width: 65%;
+  width: 55%;
 }
 #textBoard {
-  width: 30%;
+  width: 45%;
   display: flex;
-  color: lightcoral;
   border: 1px solid red;
-  border-radius: 10px;
-}
-#textBoard > div{
-  margin-left: 5px;
-  font-size: 30px;
 }
 #infoWrapper {
   display:flex;
@@ -153,18 +148,20 @@ body {
 }
 #playerCards{
   display: grid;
-  /* cardwidth */
-  grid-template-columns: repeat(30, 35px);
+  /* cardwidth 
+  repeat(number of columns, how wide?)
+  */
+  grid-template-columns: repeat(30, 31px);
   /* cardHeight */
-  grid-template-rows: 290px;
+  grid-template-rows: 262px;
   max-width: 300px;
 }
 #dealerCards{
   /* display: flex;
   flex-direction: row; */
   display: grid;
-  grid-template-columns: repeat(30, 35px);
-  grid-template-rows: 290px;
+  grid-template-columns: repeat(30, 31px);
+  grid-template-rows: 262px;
   max-width: 300px;
 }
 
@@ -235,13 +232,20 @@ body {
   font-family: Poppins;	
   font-size: 36px;	
   font-weight: bold;	
-  letter-spacing: 8px;	
+  letter-spacing: 4px;	
   line-height: 36px;
 }
 
 .cardTotal {
-  color: lightcoral;
-  font-size: 60px;
+  color: #4C8286;
+  font-family: Poppins;	
+  font-size: 48px;	
+  font-weight: bold;	
+  letter-spacing: 2px;	
+  line-height: 72px;	
+  text-align: center;
+  width: 45px;
+  height: 45px;
   margin-right: -35px;
   margin-top: -40px;
 }
