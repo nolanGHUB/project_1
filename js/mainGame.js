@@ -41,7 +41,7 @@ async function gameInit() {
   dealerHand = [];
   playerHand = [];
   message.innerHTML = ' ';
-  gameStartButton.style.visibility = 'hidden';
+  gameStartButton.style.display = 'none';
   betDiv.innerText = currentBet;
   moneyDiv.innerText = money;
   scoreDiv.innerText = score;
@@ -103,7 +103,7 @@ async function newHand() {
 function moneyCheck() { 
   if (money <= 0) {
     message.innerHTML = "YOU'RE OUT OF MONEY! COME BACK AGAIN SOON!"
-    gameStartButton.style.visibility = 'visible';
+    gameStartButton.style.display = 'block';
     newHandButton.style.display = 'none';
   }
   else {
@@ -380,7 +380,7 @@ function playerTurn() {
       console.log(`You've busted. Better luck next game!`);
       conclusion('pbust');
       gameButtons.style.display = 'none';
-      newHandButton.style.visibility = 'block';
+      newHandButton.style.display = 'block';
       break;
     case 'choice': // if player neither gets a 21 or bust, they must still make a decision: hit or stand?
       console.log('Do you choose to Hit or Stand?');

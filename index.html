@@ -27,35 +27,45 @@
       </div>
       <div id="textBoard">
         <div id="textWrapper">
-          <!-- <div id="infoOrHowToButtons">
-            <div class="gameButton2" id="infoButton">Info</div>
-            <div class="gameButton2" id="howToButton">Rules</div>
-          </div> -->
           <div id="infoWrapper">
             <div id="topTitle">BLACKJACK</div> 
             <div id="information">
-              <div id="scoreWrapper">
-                <div>Score: <span class="valueStyle" id="score"></span></div>
+              <div id="infoLeft">
+                <div id="scoreWrapper">
+                  <div>Score: 
+                    <div class="valueStyle" id="score">0</div>
+                  </div>
+                </div>
+                <div id="gameCounterWrapper">
+                  <div>Games Played: 
+                    <div class="valueStyle" id="gamesPlayed">0</div>
+                  </div>
+                </div>
               </div>
-              <div id="gameCounterWrapper">
-                <div>Games Played: <span class="valueStyle" id="gamesPlayed"></span></div>
-              </div>
-              <div id="cashWrapper">
-                <div>Cash: $<span class="valueStyle" id="cash"></span></div>
-              </div>
-              <div id="currentBetWrapper">
-                <div>Current Bet: $<span class="valueStyle" id="currentBet"></span></div>
-              </div>
-              <div id="messageWrapper">
-              <span id="message">PRESS START TO BEGIN!</span>
+              <div id="infoRight">
+                <div id="cashWrapper">
+                  <div>Cash:
+                    <div class="valueStyle">$<span id="cash">0</span></div>
+                  </div>
+                </div>
+                <div id="currentBetWrapper">
+                  <div>Current Bet:
+                    <div class="valueStyle">$<span id="currentBet">0</span></div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div id="startHandWrapper">
-              <div class="gameButton" id="gameStartButton">
-                  START
+            <div id="messageAndButtons">
+              <div id="messageWrapper">
+                <span id="message">PRESS START TO BEGIN!</span>
               </div>
-              <div class="gameButton" id="newHandButton">
-                  DEAL
+              <div id="startHandWrapper">
+                <div class="gameButton" id="gameStartButton">
+                    START
+                </div>
+                <div class="gameButton" id="newHandButton">
+                    DEAL
+                </div>
               </div>
             </div>
           </div>

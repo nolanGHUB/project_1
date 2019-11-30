@@ -20,8 +20,8 @@ body {
 #bodyWrapper {
   display: flex;
   flex-direction: column;
-  padding-top: 10%;
-  width: 70%;
+  padding-top: 8%;
+  width: 80%;
   margin: 0 auto;
 }
 #topTitle {
@@ -33,27 +33,20 @@ body {
   letter-spacing: 2.07px;	
   line-height: 72px;
 }
-#textWrapper {
-  display: flex;
-  flex-direction: column;
-  margin-left: 5px;
-}
-
 #startHandWrapper {
   display: flex;
   justify-content: left;
   margin: 0 0 5px 0;
+  height: 75px;
 }
-
-#currentBetWrapper {
-  margin: 0 0 35px 0;
-}
-
 #gameStartButton {
   margin-right: 30px;
+  margin-top: 5px;
   padding: 20px 45px;
 }
-
+#messageWrapper {
+  height: 70px;
+}
 #message {
   color: #4C8286;	
   font-family: Poppins;	
@@ -79,11 +72,15 @@ body {
   min-width: 500px;
 }
 #textBoard {
-  order: 2;
-  width: 45%;
   display: flex;
-  min-width:400px;
   justify-content: center;
+  order: 2;
+  /* width: 45%;
+  min-width:400px; */
+}
+#textWrapper {
+  display: flex;
+  flex-direction: column;
 }
 #infoWrapper {
   display:flex;
@@ -92,15 +89,31 @@ body {
   height: 100%;
   padding: 20px 0;
   margin-left: 30px;
+  min-width: 400px;
 }
 #information {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   color: #96AF94;
   font-family: Poppins;
   font-size: 16px;	
   font-weight: 500;	
-  letter-spacing: 3.56px;	
+  letter-spacing: 3px;	
   line-height: 25px;
+  height: 180px;
 }
+#infoLeft {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+#infoRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 
 #newHandButton {
   display: none;
@@ -151,17 +164,6 @@ body {
   grid-template-rows: 205px;
   max-width: 300px;
   margin: 40px 0 20px 40px;
-}
-
-#infoOrHowToButtons {
-  display: flex;
-  justify-content: space-around;
-}
-#howToButton {
-  opacity: 0.5;
-}
-#infoButton {
-  opacity: 1;
 }
 
 #rules {
@@ -232,8 +234,6 @@ body {
 }
 
 .card {
-  /* height: 188.4px;
-  width: 135.6px; */
   display: flex;
   justify-content: flex-end;
   background-image: url('../images/cardback_green.png');
@@ -244,15 +244,6 @@ body {
   box-shadow: -2px 2px 6px 0 rgba(0,0,0,0.25);
 }
 /* Got the idea from stack overflow to overlap using a grid: https://stackoverflow.com/questions/43919067/make-flex-items-overlap/43919987 */
-/* .card:nth-child(1) { grid-column: 1 / 6; }
-.card:nth-child(2) { grid-column: 3 / 8; }
-.card:nth-child(3) { grid-column: 5 / 10; }
-.card:nth-child(4) { grid-column: 7 / 12; }
-.card:nth-child(5) { grid-column: 9 / 14; }
-.card:nth-child(6) { grid-column: 11 / 16; }
-.card:nth-child(7) { grid-column: 13 / 18; }
-.card:nth-child(8) { grid-column: 15 / 20; }
-.card:nth-child(9) { grid-column: 17 / 22; } */
 .card:nth-child(1) { grid-column: 1 / 6; }
 .card:nth-child(2) { grid-column: 2 / 7; }
 .card:nth-child(3) { grid-column: 3 / 8; }
@@ -269,9 +260,6 @@ starts at 4, ends at 9..etc Each number being a grid unit defined above. cards a
 /* 135.6px x 188.4px */
 
 @media (max-width: 1023px) {
-	body {
-		background-color: red;
-  }
   #mainWrapper {
     flex-direction: column;
   }
@@ -279,6 +267,7 @@ starts at 4, ends at 9..etc Each number being a grid unit defined above. cards a
     order: 2;
   }
   #textBoard {
+    justify-content: start;
     order: 1;
   }
 }
@@ -294,5 +283,8 @@ starts at 4, ends at 9..etc Each number being a grid unit defined above. cards a
     flex-wrap: wrap;
     flex-direction: row;
     min-width: 500px;
+  }
+  #textBoard {
+    justify-content: start;
   }
 }
