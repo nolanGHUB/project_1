@@ -169,17 +169,23 @@ body {
   max-width: 300px;
   margin: 20px 0 40px 40px;
 }
-#botWrapper {
-  width: 100%;
+#playerSplitCards {
+  display: none;
+  grid-template-columns: repeat(30, 30px);
+  grid-template-rows: 205px;
+  max-width: 300px;
+  margin: 20px 0 40px 40px;
 }
+
 #dealerCards{
-  /* display: flex;
-  flex-direction: row; */
   display: grid;
   grid-template-columns: repeat(30, 30px);
   grid-template-rows: 205px;
   max-width: 300px;
   margin: 40px 0 20px 40px;
+}
+#botWrapper {
+  width: 100%;
 }
 
 #rules {

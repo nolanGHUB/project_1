@@ -1,6 +1,6 @@
 //Setting variables for interactables and HTML elements to be adjusted by DOM calls.
 const gameStartButton = document.querySelector('#gameStartButton');
-const newHandButton = document.querySelector('#newHandButton'); 
+const newHandButton = document.querySelector('#newHandButton');
 const hitButton = document.querySelector('#hitButton');
 const standButton = document.querySelector('#standButton');
 const getNewDecksURL = 'https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=' //add the # of decks you want to the end (1-6)
@@ -17,6 +17,8 @@ const message = document.querySelector('#message');
 const rules = document.querySelector('#rules');
 const info = document.querySelector('#information');
 const doubleButton = document.querySelector('#doubleButton');
+const splitButton = document.querySelector('#splitButton');
+const splitDiv = document.querySelector('#playerSplitCards');
 
 //global variables
 let deckId; // Grabs the deckId from the API to be used in order to draw said cards.
@@ -27,6 +29,8 @@ let score; //players total score
 let currentBet; //players current bet for the current hand
 let dealerHand; //the array for the dealers cards
 let playerHand; //the array for the players cards
+let playerSplitHand;
+let handActive = 'player';  //tells the other functions if they should be working on the players hand or the split hand if that exists.
 //BACK OF CARD IMAGE = 226px x 314px
 
 
@@ -38,6 +42,7 @@ async function gameInit() {
   currentBet = 0;
   dealerHand = [];
   playerHand = [];
+  playerSplitHand = [];
   message.innerHTML = ' ';
   gameStartButton.style.display = 'none';
   betDiv.innerText = currentBet;
@@ -52,7 +57,7 @@ async function gameInit() {
 }
 
 //Payout function. Takes a ratio of 1 for even money, 2 for normal payout and 2.5 for a blackjack payout and adds the appropriate winnings to the players money.
-function payout(ratio) { 
+function payout(ratio) {
   let total = 0;
   total = currentBet * ratio;
   money += total;
@@ -80,8 +85,9 @@ async function newHand() {
   console.log('-----------------------NEW HAND---------------------------');
   dealer.innerHTML = ' ';
   player.innerHTML = ' ';
+  splitDiv.innerHTML = ' '
   let flushHand = [];
-  flushHand = playerHand.concat(dealerHand); //putting player and dealer hands together
+  flushHand = playerHand.concat(dealerHand, playerSplitHand); //putting player and dealer hands together
   deck = deck.concat(flushHand); // puts them at the end of the deck
   deck = await localShuffleDeck(); // re-shuffles the entire deck after every hand
   playerHand = deal(2, player, true); //dealing begins
@@ -97,7 +103,7 @@ async function newHand() {
 }
 
 //Is the check to see if player has any amount above zero to play with, otherwise game is over beause player can no longer bet.
-function moneyCheck() { 
+function moneyCheck() {
   if (money <= 0) {
     message.innerHTML = "YOU'RE OUT OF MONEY! COME BACK AGAIN SOON!"
     gameStartButton.style.display = 'block';
@@ -120,13 +126,14 @@ function checkIfNatural() {
     conclusion('both');
     payout(1);
   } else if (checkDealerNatural() === false && checkPlayerNatural() === true) {
-    console.log('You have Blackjack!, You win!'); 
+    console.log('You have Blackjack!, You win!');
     flipDealersCard();
     conclusion('pbj');
     payout(2.5);
   } else {
-    if (money >= (currentBet * 2)) {
+    if (money >= (currentBet * 2)) { //check if the player has enough available money for a double, if so then offer it.
       doubleButton.style.display = 'flex';
+      // splitButton.style.display = 'flex'; //and split feature as well
     }
     playerTurn();
   }
@@ -188,7 +195,7 @@ function setCardTotalVisual(toWho) {
       }
     }
   }
- 
+
   //create a new div containing the total, give it the right css and append it to the newest card of that hand
   let testTotalDiv = document.createElement('div'); //create a new total child to append to newest card
   testTotalDiv.classList.add('cardTotal'); // give the total some positioning
@@ -202,17 +209,17 @@ function setCardTotalVisual(toWho) {
 }
 
 //setCardImage takes 3 parameters: which card image to show, to which person (dealer/player) this card belongs and if the card should be face-up or not
-function setCardImage(card, toWho, faceUp) { 
+function setCardImage(card, toWho, faceUp) {
   let cardDiv = document.createElement('div');
   cardDiv.classList.add('card');
   if (faceUp) { // because there is literally only one situation where a card is face down (dealers first 2 cards 1 up 1 down), we leave the background image set. otherwise all other cards acquire their faceup image here.
     cardDiv.style.backgroundImage = `url(${card.image})`;
-  } 
+  }
   toWho.appendChild(cardDiv);
 }
 
 //This handles showing the dealers previously left face-down card, after the player's turn is over and the showdown occurs. This gets called a few times so a function was created.
-function flipDealersCard() { 
+function flipDealersCard() {
   dealer.firstElementChild.style.backgroundImage = `url(${dealerHand[0].image})`;
 }
 
@@ -237,7 +244,7 @@ function deal(numOfCards, toWho, faceUp) {
 }
 
 // grabs the 'value' value from the card object, which could be 2-9 or ACE, JACK, QUEEN or KING and assigns a true number value which we can actually use.
-function calculateValue(value) { 
+function calculateValue(value) {
   switch (value) {
     case 'KING':
     case 'QUEEN':
@@ -292,16 +299,26 @@ function getDealerTotal() {
 
 //if hit button is pressed, deal another card to the player, adjust the total counter on screen & start the playerTurn() function again to check for conclusions
 function hit() {
-  playerHand.push(deal(1, player, true));
-  setCardTotalVisual(player);
-  console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
-  console.log(`Your new total is ${getPlayerTotal()}`);
-  doubleButton.style.display = 'none';
-  playerTurn();
+  if (handActive === 'player') {
+    playerHand.push(deal(1, player, true));
+    setCardTotalVisual(player);
+    console.log(`Your new card is ${playerHand[playerHand.length - 1].value} of ${playerHand[playerHand.length - 1].suit}`);
+    console.log(`Your new total is ${getPlayerTotal()}`);
+    doubleButton.style.display = 'none';
+    playerTurn();
+  }
+  else {
+    playerSplitHand.push(deal(1, splitDiv, true));
+    setCardTotalVisual(splitDiv);
+    console.log(`Your new card is ${playerSplitHand[playerSplitHand.length - 1].value} of ${playerSplitHand[playerSplitHand.length - 1].suit}`);
+    console.log(`Your new total is ${getPlayerTotal()}`);
+    doubleButton.style.display = 'none';
+    playerTurn();
+  }
 }
 
 //if stand button is pressed players turn is over, move onto dealerTurn()
-function stand() { 
+function stand() {
   doubleButton.style.display = 'none';
   dealerTurn();
 }
@@ -313,7 +330,7 @@ function double() {
   money -= currentBet; // set the variable
   currentBet *= 2;
   moneyDiv.innerText = money; //set the visuals to represent the updated variables
-  betDiv.innerText = money; 
+  betDiv.innerText = money;
   let playerTotal = getPlayerTotal(); //need to do bust check
   doubleButton.style.display = 'none';
   gameButtons.style.display = 'none';
@@ -322,6 +339,16 @@ function double() {
   } else {
     dealerTurn();
   }
+}
+
+function split() {
+  splitDiv.appendChild(player.lastElementChild); // steals the last card from the players original deck and appends it to the new split deck
+  playerSplitHand.push(playerHand.pop());
+  splitDiv.style.display = 'grid';
+  playerHand.push(deal(1, player, true));
+  playerSplitHand.push(deal(1, splitDiv, true));// then deals 2 cards, one for each.
+  setCardTotalVisual(player);
+  setCardTotalVisual(splitDiv);
 }
 
 
@@ -364,12 +391,12 @@ function conclusion(endCase) {
 function playerTurn() {
   gameButtons.style.display = 'flex'; // make the hit/stand buttons visible.
 
-  let playerOutcome; 
+  let playerOutcome;
   let playerTotal = getPlayerTotal();
   if (playerTotal > 21) {  //Find out what the players situation is and sets it for the following conditional, if choice the player still has the option to hit or stand, otherwise player has busted or landed on a non-natural 21.
     playerOutcome = "bust";
   } else if (playerTotal === 21) {
-    playerOutcome =  "21";
+    playerOutcome = "21";
   } else {
     playerOutcome = "choice";
   }
@@ -411,24 +438,24 @@ function dealerTurn() {
 
   let promise = new Promise(function (resolve) { // if we dont use a promise here the game will keep going without the dealers turn being finished and the result will be undefined.
     let dealerThink = setInterval(function () { // use setInterval to give the dealer a second delaye between each move so it doesn't all happen at once.
-    if (dealerTotal > 21) {//if dealer bust
-      dealResult = 'bust'; 
-      resolve(dealResult); //resolve is what is "returned" to the promise.then, so we are giving it the result that takes a second or more so that the promise knows to wait for this before using the value later on before its undefined.
-      clearInterval(dealerThink);
-    } else if (dealerTotal >= 17) { //dealer always stands on 17 or higher.
-      console.log('Dealer Stands');
-      dealResult = 'stand'; 
-      resolve(dealResult);
-      clearInterval(dealerThink);
-    } else {
-      dealerHand.push(deal(1, dealer, true));
-      setCardTotalVisual(dealer);
-      console.log('Dealer chooses to hit.');
-      console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
-      dealerTotal = getDealerTotal();
-      console.log(`Dealer's new total is ${dealerTotal}`);
-    }
-  }, 1000);
+      if (dealerTotal > 21) {//if dealer bust
+        dealResult = 'bust';
+        resolve(dealResult); //resolve is what is "returned" to the promise.then, so we are giving it the result that takes a second or more so that the promise knows to wait for this before using the value later on before its undefined.
+        clearInterval(dealerThink);
+      } else if (dealerTotal >= 17) { //dealer always stands on 17 or higher.
+        console.log('Dealer Stands');
+        dealResult = 'stand';
+        resolve(dealResult);
+        clearInterval(dealerThink);
+      } else {
+        dealerHand.push(deal(1, dealer, true));
+        setCardTotalVisual(dealer);
+        console.log('Dealer chooses to hit.');
+        console.log(`Dealer's new card is ${dealerHand[dealerHand.length - 1].value} of ${dealerHand[dealerHand.length - 1].suit}`);
+        dealerTotal = getDealerTotal();
+        console.log(`Dealer's new total is ${dealerTotal}`);
+      }
+    }, 1000);
   });
 
   promise.then(function (dealResult) { //Here is the code that is now run once the promise has been resolved. This prevents these things from running before a result is finished.
@@ -462,8 +489,8 @@ function dealerTurn() {
         break;
       default:
         console.log("Not sure what happened here! HELP! - from playGame() default result for dealerOutcome switch.");
-    } 
-  }); 
+    }
+  });
 }
 
 
@@ -474,18 +501,19 @@ function addAnimationRaiseUpFadeOut(inner, target) {
   tempText.innerHTML = inner;
   tempText.classList.add('animateButtonText');
   target.appendChild(tempText);
-  setTimeout(function() { tempText.remove(); }, 995); //You have to remove it once the animation is complete otherwise you end up just adding a ton of divs which will eventually bog down the DOM/memory I assume.
+  setTimeout(function () { tempText.remove(); }, 995); //You have to remove it once the animation is complete otherwise you end up just adding a ton of divs which will eventually bog down the DOM/memory I assume.
 }
 
 //Event Listeners for the buttons.
 window.onload = function () {
-  
+
   //button listeners
   gameStartButton.addEventListener('click', gameInit);
   newHandButton.addEventListener('click', moneyCheck);
   hitButton.addEventListener('click', hit);
   standButton.addEventListener('click', stand);
   doubleButton.addEventListener('click', double);
+  splitButton.addEventListener('click', split);
 
   //wagering could be done in its own function up top but in reality its just large conditional why not handle it inside an anonymous function inside the event listener.
   wagerButtons.addEventListener('click', function (e) { //On all of the div so we dont have to set a new listener on each button individually.
