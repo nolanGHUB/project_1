@@ -14,3 +14,6 @@
 
 ### Instructions
 - Users unfamiliar with the game of blackjack can find a short write-up of rules at the bottom of the site.  The only things to be interracted with are the buttons that appear on screen.  Other than that, basic blackjack.
+
+### Unfinished Stretch Goals
+- Split functionality half-way implemented but disabled for now.
