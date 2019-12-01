@@ -1,6 +1,6 @@
-### PROJECT 1: BLACKJACK
+### PROJECT 1: [BLACKJACK](blackjacknolan.surge.sh)
 --developed by Nolan Giles / SEI / CHEETAHS
---[Blackjack](blackjacknolan.surge.sh) - Link to live page.
+- [Blackjack](blackjacknolan.surge.sh) - live page.
 
 ### Technologies used:
 - HTML/CSS/JAVASCRIPT & AXIOS for API GET calls.
